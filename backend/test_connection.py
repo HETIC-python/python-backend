@@ -1,6 +1,13 @@
 from sqlalchemy import create_engine
+import pymysql
+from os import environ
 
-DATABASE_URI = "mysql+pymysql://dbbackend:dbbackend_123@mysql-dbbackend.alwaysdata.net/dbbackend_123"
+USER_NAME = environ.get("DB_USER_NAME")
+USER_PASS = environ.get("DB_USER_PASS")
+HOST = environ.get("DB_HOST")
+DB_NAME = environ.get("DB_NAME")
+DATABASE_URI = f"mysql+pymysql://{USER_NAME}:{USER_PASS}@{HOST}/{DB_NAME}"
+
 
 try:
     engine = create_engine(DATABASE_URI)
