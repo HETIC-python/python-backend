@@ -8,6 +8,7 @@ from models.car import Car
 from models.request import Request
 from models.service import Service
 from models.appointment import Appointment
+from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
@@ -20,6 +21,12 @@ migrate = Migrate(app, db)
 def index():
     return "Database connected successfully!"
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+# Enregistrer le Blueprint
+
+app.register_blueprint(cars_bp, url_prefix='/api')
 
 if __name__ == "__main__":
     app.run(debug=True)

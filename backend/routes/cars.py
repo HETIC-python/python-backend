@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, make_response, Blueprint
-from backend.models import db  # Assurez-vous que votre module db est bien importé
+from models import db  # Assurez-vous que votre module db est bien importé
 
-from backend.models.car import Car  # Importation de votre classe Car
+from models.car import Car  # Importation de votre classe Car
 
 
 cars_bp = Blueprint('cars', __name__)
