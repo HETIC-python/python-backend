@@ -2,6 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from config import DATABASE_URI
 from models import db
+from routes.cars import cars_bp
 from models.user import User
 from models.car import Car
 from models.request import Request
@@ -18,6 +19,7 @@ migrate = Migrate(app, db)
 @app.route("/")
 def index():
     return "Database connected successfully!"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
