@@ -3,12 +3,15 @@ from flask_migrate import Migrate
 from config import DATABASE_URI
 from models import db
 from routes.cars import cars_bp
+from routes.service import service_bp
 from models.user import User
 from models.car import Car
 from models.request import Request
-from models.service import Service
 from models.appointment import Appointment
 from flask_login import LoginManager
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from controller.service import create_service, get_service, get_all_services, update_service, delete_service
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
@@ -17,16 +20,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-@app.route("/")
-def index():
-    return "Database connected successfully!"
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 # Enregistrer le Blueprint
 
 app.register_blueprint(cars_bp, url_prefix='/api')
+app.register_blueprint(service_bp, url_prefix='/api')
 
 if __name__ == "__main__":
     app.run(debug=True)
