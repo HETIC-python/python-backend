@@ -1,4 +1,4 @@
-from backend.models import db # Assurez-vous que db est bien importé depuis votre package
+from . import db  # Assurez-vous que db est bien importé depuis votre package
 
 class Car(db.Model):
     id = db.Column(db.Integer, primary_key=True)
