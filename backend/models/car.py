@@ -1,4 +1,4 @@
-from . import db  # Assurez-vous que db est bien importé depuis votre package
+from . import db  
 
 class Car(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -9,6 +9,10 @@ class Car(db.Model):
     km = db.Column(db.Integer)
     type = db.Column(db.String(50))
     code = db.Column(db.String(50))
+    engine = db.Column(db.String(255))  
+    transmission = db.Column(db.String(50)) 
+    horsepower = db.Column(db.Integer)  
+    topSpeed = db.Column(db.Integer) 
     availability = db.Column(db.Boolean, default=True)
     description = db.Column(db.Text)
-    picture = db.Column(db.String(255))  # Chemin de l'image
+    picture = db.Column(db.String(255))  #
