@@ -43,7 +43,7 @@ def add_appointment():
     if not data or "user_id" not in data or "service_id" not in data or date not in data:
         return jsonify({"message": "Champs manquant"}), 400
 
-    appointment = create_appointment(data["user_id"], data[service_id], data["date"])
+    appointment = create_appointment(data["user_id"], data["service_id"], data["date"])
     return jsonify({
         "id": appointment.id,
         "user_id": appointment.user_id,
