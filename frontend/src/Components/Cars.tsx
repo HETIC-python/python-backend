@@ -91,10 +91,11 @@ const FilterControls = ({
 const CarCard = ({ car }: { car: Car }) => (
   <div className="bg-white rounded-lg shadow-lg overflow-hidden">
     <img
-      src={car?.imageUrl}
+      src={car?.picture}
       alt={`${car?.brand} ${car?.name}`}
       className="w-full h-48 object-cover"
     />
+    {JSON.stringify(car)}
     <div className="p-6">
       <h2 className="text-xl font-bold mb-2">
         {car?.brand} {car?.name}

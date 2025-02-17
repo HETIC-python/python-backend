@@ -5,7 +5,7 @@ export interface Car {
   model: string;
   year: number;
   price: number;
-  imageUrl: string;
+  picture: string;
 }
 
 export interface CarDetails extends Car {
