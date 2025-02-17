@@ -11,12 +11,15 @@ def create_appointment(user_id: int, service_id: int, date: date) -> Appointment
 def get_appointment(appointment_id: int) -> Optional[Appointment]:
     return Appointment.query.get(appointment_id)
 
+def get_appointments_by_user_id(user_id: int) -> List[Appointment]:
+    return Appointment.query.filter_by(user_id=user_id).all()
+
 def get_all_appointments() -> List[Appointment]:
     return Appointment.query.all()
 
 def update_appointment(appointment_id: int, date: Optional[date]= None) -> Optional[Appointment]:
     appointment = get_appointment(appointment_id)
-    if appointment && date is not None :
+    if appointment and date is not None :
         appointment.date = date
         db.session.commit()
     return appointment
