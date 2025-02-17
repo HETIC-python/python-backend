@@ -73,4 +73,4 @@ def modify_appointment(appointment_id)
 def remove_appointment(appointment_id)
     if delete_appointment(appointment_id):
         return jsonify({"message": f"Appointment with id : {appointment_id} deleted"})
-    return jsonify({"message": f"Couldn't resolve appointment with id : {appointment_id}"}, 404)
+    return jsonify({"message": f"Couldn't resolve appointment with id : {appointment_id}"}, 404) 
