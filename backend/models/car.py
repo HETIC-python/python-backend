@@ -5,6 +5,7 @@ class Car(db.Model):
     name = db.Column(db.String(255), nullable=False)
     year = db.Column(db.Integer)
     model = db.Column(db.String(255))
+    price = db.Column(db.String(255))
     brand = db.Column(db.String(255))
     km = db.Column(db.Integer)
     type = db.Column(db.String(50))
