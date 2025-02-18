@@ -112,6 +112,12 @@ def update_car(car_id):
         car.code = data.get('code', car.code)
         car.availability = data.get('availability', car.availability)
         car.description = data.get('description', car.description)
+        car.price = data.get('price', car.price)
+        car.picture = data.get('picture', car.picture)
+        car.engine = data.get('engine', car.engine)
+        car.transmission = data.get('transmission', car.transmission)
+        car.horsepower = data.get('horsepower', car.horsepower)
+        car.topSpeed = data.get('topSpeed', car.topSpeed)
 
         db.session.commit()
         return make_response(jsonify({"message": "Car updated successfully"}), 200)
