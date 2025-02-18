@@ -112,25 +112,30 @@ def add_request():
                 "success": False,
                 "message": "Le prix doit être un nombre valide"
             }), 400
-
-    req = create_request(**request_data)
-    
-    return jsonify({
-        "success": True,
-        "data": {
-            "id": req.id,
-            "type": req.type,
-            "status": req.status,
-            "description": req.description,
-            "user_id": req.user_id,
-            "car_id": req.car_id,
-            "start_date": req.start_date.isoformat() if req.start_date else None,
-            "end_date": req.end_date.isoformat() if req.end_date else None,
-            "price": req.price,
-            "created_at": req.created_at.isoformat() if req.created_at else None
-        }
-    }), 201
-
+        
+    try : 
+        req = create_request(**request_data)
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "id": req.id,
+                "type": req.type,
+                "status": req.status,
+                "description": req.description,
+                "user_id": req.user_id,
+                "car_id": req.car_id,
+                "start_date": req.start_date.isoformat() if req.start_date else None,
+                "end_date": req.end_date.isoformat() if req.end_date else None,
+                "price": req.price,
+                "created_at": req.created_at.isoformat() if req.created_at else None
+            }
+        }), 201
+    except :
+         return jsonify({
+            "success": False,
+            "message": "Une erreur s'est produite. Vérifiez si les utilisateurs ou le véhicule associé est correct."
+        }), 500
 @request_bp.put("/requests/<int:request_id>")
 def modify_request(request_id):
     data = request.get_json()
@@ -148,37 +153,45 @@ def modify_request(request_id):
             "success": False,
             "message": "Format de date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
         }), 400
-
-    req = update_request(
-        request_id,
-        type=data.get("type"),
-        description=data.get("description"),
-        status=data.get("status"),
-        start_date=start_date,
-        end_date=end_date,
-        price=float(data["price"]) if "price" in data else None
-    )
-    
-    if req:
+    try:
+        req = update_request(
+            request_id,
+            type=data.get("type"),
+            description=data.get("description"),
+            status=data.get("status"),
+            start_date=start_date,
+            end_date=end_date,
+            price=float(data["price"]) if "price" in data else None
+        )
+        
+        if req:
+            return jsonify({
+                "success": True,
+                "data": {
+                    "id": req.id,
+                    "type": req.type,
+                    "description": req.description,
+                    "status": req.status,
+                    "user_id": req.user_id,
+                    "car_id": req.car_id,
+                    "start_date": req.start_date.isoformat() if req.start_date else None,
+                    "end_date": req.end_date.isoformat() if req.end_date else None,
+                    "price": req.price,
+                    "created_at": req.created_at.isoformat() if req.created_at else None
+                }
+            })
+        
         return jsonify({
-            "success": True,
-            "data": {
-                "id": req.id,
-                "type": req.type,
-                "description": req.description,
-                "status": req.status,
-                "user_id": req.user_id,
-                "car_id": req.car_id,
-                "start_date": req.start_date.isoformat() if req.start_date else None,
-                "end_date": req.end_date.isoformat() if req.end_date else None,
-                "price": req.price,
-                "created_at": req.created_at.isoformat() if req.created_at else None
-            }
-        })
-    return jsonify({
-        "success": False,
-        "message": "Requête non trouvée"
-    }), 404
+            "success": False,
+            "message": "Requête non trouvée"
+        }), 404
+
+    except :
+        return jsonify({
+            "success": False,
+            "message": "Une erreur s'est produite. Vérifiez si les utilisateurs ou le véhicule associé est correct."
+        }), 500
+        
 
 @request_bp.delete("/requests/<int:request_id>")
 def remove_request(request_id):
