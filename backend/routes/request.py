@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from datetime import datetime
 from controller.request import (
     create_request,
     get_request,
@@ -27,13 +28,15 @@ def list_requests():
         "success": True,
         "data": [{
             "id": req.id,
-            "title": req.title,
+            "type": req.type,
             "description": req.description,
             "status": req.status,
             "user_id": req.user_id,
             "car_id": req.car_id,
-            "created_at": req.created_at.isoformat() if req.created_at else None,
-            "updated_at": req.updated_at.isoformat() if req.updated_at else None
+            "start_date": req.start_date.isoformat() if req.start_date else None,
+            "end_date": req.end_date.isoformat() if req.end_date else None,
+            "price": req.price,
+            "created_at": req.created_at.isoformat() if req.created_at else None
         } for req in requests]
     })
 
@@ -45,13 +48,15 @@ def get_single_request(request_id):
             "success": True,
             "data": {
                 "id": req.id,
-                "title": req.title,
+                "type": req.type,
                 "description": req.description,
                 "status": req.status,
                 "user_id": req.user_id,
                 "car_id": req.car_id,
-                "created_at": req.created_at.isoformat() if req.created_at else None,
-                "updated_at": req.updated_at.isoformat() if req.updated_at else None
+                "start_date": req.start_date.isoformat() if req.start_date else None,
+                "end_date": req.end_date.isoformat() if req.end_date else None,
+                "price": req.price,
+                "created_at": req.created_at.isoformat() if req.created_at else None
             }
         })
     return jsonify({
@@ -62,30 +67,67 @@ def get_single_request(request_id):
 @request_bp.post("/requests")
 def add_request():
     data = request.get_json()
-    if not data or not all(k in data for k in ["title", "description", "user_id", "car_id"]):
+    required_fields = ["type", "status", "user_id", "car_id", "start_date"]
+    if not data or not all(k in data for k in required_fields):
         return jsonify({
             "success": False,
-            "message": "Les champs 'title', 'description', 'user_id' et 'car_id' sont requis"
+            "message": f"Les champs suivants sont requis : {', '.join(required_fields)}"
         }), 400
     
-    req = create_request(
-        title=data["title"],
-        description=data["description"],
-        user_id=data["user_id"],
-        car_id=data["car_id"]
-    )
+    try:
+        start_date = datetime.fromisoformat(data["start_date"])
+        print(start_date)
+
+        if "end_date" in data:
+            try:
+                data["end_date"] = datetime.fromisoformat(data["end_date"])
+            except ValueError:
+                return jsonify({
+                    "success": False,
+                    "message": "Format de end_date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
+                }), 400
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "message": "Format de start_date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
+        }), 400
+
+    request_data = {
+        "type": data["type"],
+        "status": data["status"],
+        "user_id": data["user_id"],
+        "car_id": data["car_id"],
+        "start_date": start_date
+    }
+
+    if "description" in data:
+        request_data["description"] = data["description"]
+    if "end_date" in data:
+        request_data["end_date"] = data["end_date"]
+    if "price" in data:
+        try:
+            request_data["price"] = float(data["price"])
+        except (ValueError, TypeError):
+            return jsonify({
+                "success": False,
+                "message": "Le prix doit être un nombre valide"
+            }), 400
+
+    req = create_request(**request_data)
     
     return jsonify({
         "success": True,
         "data": {
             "id": req.id,
-            "title": req.title,
-            "description": req.description,
+            "type": req.type,
             "status": req.status,
+            "description": req.description,
             "user_id": req.user_id,
             "car_id": req.car_id,
-            "created_at": req.created_at.isoformat() if req.created_at else None,
-            "updated_at": req.updated_at.isoformat() if req.updated_at else None
+            "start_date": req.start_date.isoformat() if req.start_date else None,
+            "end_date": req.end_date.isoformat() if req.end_date else None,
+            "price": req.price,
+            "created_at": req.created_at.isoformat() if req.created_at else None
         }
     }), 201
 
@@ -98,11 +140,23 @@ def modify_request(request_id):
             "message": "Données invalides"
         }), 400
     
+    try:
+        start_date = datetime.fromisoformat(data["start_date"]) if "start_date" in data else None
+        end_date = datetime.fromisoformat(data["end_date"]) if "end_date" in data else None
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "message": "Format de date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
+        }), 400
+
     req = update_request(
         request_id,
-        title=data.get("title"),
+        type=data.get("type"),
         description=data.get("description"),
-        status=data.get("status")
+        status=data.get("status"),
+        start_date=start_date,
+        end_date=end_date,
+        price=float(data["price"]) if "price" in data else None
     )
     
     if req:
@@ -110,13 +164,15 @@ def modify_request(request_id):
             "success": True,
             "data": {
                 "id": req.id,
-                "title": req.title,
+                "type": req.type,
                 "description": req.description,
                 "status": req.status,
                 "user_id": req.user_id,
                 "car_id": req.car_id,
-                "created_at": req.created_at.isoformat() if req.created_at else None,
-                "updated_at": req.updated_at.isoformat() if req.updated_at else None
+                "start_date": req.start_date.isoformat() if req.start_date else None,
+                "end_date": req.end_date.isoformat() if req.end_date else None,
+                "price": req.price,
+                "created_at": req.created_at.isoformat() if req.created_at else None
             }
         })
     return jsonify({
