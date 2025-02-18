@@ -9,10 +9,10 @@ def create_car_appointment(user_id: int, car_id: int, date: date) -> CarAppointm
     return carAppointment
 
 def get_car_appointment(appointment_id: int) -> Optional[CarAppointment]:
-    return carAppointment.query.get(appointment_id)
+    return CarAppointment.query.get(appointment_id)
 
 def get_car_appointments_by_user_id(user_id: int) -> List[CarAppointment]:
-    return carAppointment.query.filter_by(user_id=user_id).all()
+    return CarAppointment.query.filter_by(user_id=user_id).all()
 
 def get_all_car_appointments() -> List[CarAppointment]:
     return CarAppointment.query.all()
