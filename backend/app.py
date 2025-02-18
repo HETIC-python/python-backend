@@ -6,6 +6,7 @@ from routes.cars import cars_bp
 from routes.service import service_bp
 from models.user import User
 from models.car import Car
+from models.carAppointment import CarAppointment
 from models.request import Request
 from models.appointment import Appointment
 from routes.appointments import appointment_bp
