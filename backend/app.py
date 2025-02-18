@@ -8,6 +8,7 @@ from models.user import User
 from models.car import Car
 from models.request import Request
 from models.appointment import Appointment
+from routes.appointments import appointment_bp
 from flask_login import LoginManager
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -36,6 +37,7 @@ login_manager.init_app(app)
 
 app.register_blueprint(cars_bp, url_prefix="/api")
 app.register_blueprint(service_bp, url_prefix="/api")
+app.register_blueprint(appointment_bp, url_prefix="/api")
 
 if __name__ == "__main__":
     app.run(debug=True)
