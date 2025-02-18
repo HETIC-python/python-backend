@@ -1,30 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { ServiceType } from "./types/appointment";
 import { API_URL } from "../api";
 
-const services: { type: ServiceType; label: string; description: string }[] = [
-  {
-    type: "test_drive",
-    label: "Test Drive",
-    description: "Take the car for a test drive with our expert",
-  },
-  {
-    type: "financial_advice",
-    label: "Financial Consultation",
-    description: "Get expert advice on financing options and lease terms",
-  },
-  {
-    type: "maintenance",
-    label: "Maintenance Check",
-    description: "Complete vehicle inspection and maintenance consultation",
-  },
-  {
-    type: "inspection",
-    label: "Vehicle Inspection",
-    description: "Detailed inspection of the vehicle condition",
-  },
-];
+// const services: { type?: ServiceType; label: string; description: string }[] = [
+//   {
+//     // type: "test_drive",
+//     label: "Test Drive",
+//     description: "Take the car for a test drive with our expert",
+//   },
+//   {
+//     // type: "financial_advice",
+//     label: "Financial Consultation",
+//     description: "Get expert advice on financing options and lease terms",
+//   },
+//   {
+//     // type: "maintenance",
+//     label: "Maintenance Check",
+//     description: "Complete vehicle inspection and maintenance consultation",
+//   },
+//   {
+//     type: "inspection",
+//     label: "Vehicle Inspection",
+//     description: "Detailed inspection of the vehicle condition",
+//   },
+// ];
 
 async function bookAppointment(formData: object) {
   const resp = await fetch(`${API_URL}/book-appointment`, {
@@ -39,13 +39,31 @@ async function bookAppointment(formData: object) {
   return data;
 }
 
+async function getServices() {
+  const resp = await fetch(`${API_URL}/services`);
+  const data = await resp.json();
+  return data;
+}
+
+function useServices() {
+  const [services, setServices] = useState([]);
+  useEffect(() => {
+    getServices().then((data) => {
+      setServices(data);
+    });
+  }, []);
+  return services as { name: string; description: string }[];
+}
+
 export default function AppointmentForm() {
   const navigate = useNavigate();
+  const services = useServices();
+
   const [formData, setFormData] = useState({
     carId: "",
     date: "",
     time: "",
-    serviceType: "" as ServiceType,
+    serviceName: "",
     notes: "",
   });
 
@@ -72,20 +90,20 @@ export default function AppointmentForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {services.map((service) => (
               <div
-                key={service.type}
+                key={service?.name}
                 className={`p-4 border rounded-lg cursor-pointer ${
-                  formData.serviceType === service.type
+                  formData.serviceName === service.name
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-200"
                 }`}
                 onClick={() =>
                   setFormData((prev) => ({
                     ...prev,
-                    serviceType: service.type,
+                    serviceName: service.name,
                   }))
                 }
               >
-                <h3 className="font-medium">{service.label}</h3>
+                <h3 className="font-medium">{service.name}</h3>
                 <p className="text-sm text-gray-500">{service.description}</p>
               </div>
             ))}

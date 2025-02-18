@@ -22,6 +22,7 @@ const Services: React.FC = () => {
                 setServices(data.data);
             }
         } catch (err) {
+            console.error(err);
             setError('Erreur lors du chargement des services');
         } finally {
             setIsLoading(false);

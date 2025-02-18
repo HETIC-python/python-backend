@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { mockCars } from "./data";
-import { Car } from "./types/car";
 import { API_URL } from "../api";
+import { Car } from "./types/car";
 
 // Filter Controls Component
 const FilterControls = ({
@@ -95,7 +94,7 @@ const CarCard = ({ car }: { car: Car }) => (
       alt={`${car?.brand} ${car?.name}`}
       className="w-full h-48 object-cover"
     />
-    {JSON.stringify(car)}
+    {/* {JSON.stringify(car)} */}
     <div className="p-6">
       <h2 className="text-xl font-bold mb-2">
         {car?.brand} {car?.name}

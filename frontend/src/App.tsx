@@ -8,6 +8,8 @@ import User from "./Components/User";
 import Appointments from "./Components/Appointments";
 import AppointmentForm from "./Components/AppointmentForm";
 import Services from './Components/Services';
+import AdminCars from './Components/admin/Cars'
+import CarForm from './Components/admin/CarForm';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
             </Route>
             <Route path="/admin">
               <Route index element={<h1>ADMIN</h1>} />
+              <Route path='cars' element={<AdminCars />} />
+              <Route path='cars/:id' element={<CarForm />} />
               {/* <Route path="create" element={<AppointmentForm />} /> */}
             </Route>
             <Route path="/services" element={<Services />} />
