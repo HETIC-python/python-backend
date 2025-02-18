@@ -5,6 +5,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
+from flask import Flask, request, jsonify, session
+from flask_sqlalchemy import SQLAlchemy
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+
 from models import db
 from models.user import User
 from models.request import Request
@@ -59,7 +66,7 @@ def order_car():
     current_user = get_jwt_identity()
     user = User.query.get(current_user['id'])
     car = data['id']
-    new_request = Request()
+    new_request = Request(type=data['type'], user_id=user,car_id=car,start_date=data['start_date'],end_date=data['end_date'],created_at=data['created_at'],price=data['price'],description=data['description'])
     
 if __name__ == '__main__':
     db.create_all()
