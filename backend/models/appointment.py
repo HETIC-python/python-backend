@@ -8,3 +8,5 @@ class Appointment(db.Model):
     service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
     date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    service = db.relationship("Service", backref="appointments")

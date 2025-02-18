@@ -10,6 +10,7 @@ def list_appointments():
         "id": appointment.id,
         "user_id": appointment.user_id,
         "service_id": appointment.service_id,
+        "service_name": appointment.service.name,
         "date": appointment.date
     } for appointment in appointments])
 
@@ -20,6 +21,7 @@ def get_user_appointments(user_id):
         "id": appointment.id,
         "user_id": appointment.user_id,
         "service_id": appointment.service_id,
+        "service_name": appointment.service.name,
         "date": appointment.date,
         "created_at": appointment.created_at
     } for appointment in appointments])
@@ -32,6 +34,7 @@ def get_single_appointment(appointment_id):
             "id": appointment.id,
             "user_id": appointment.user_id,
             "service_id": appointment.service_id,
+            "service_name": appointment.service.name,
             "date": appointment.date,
             "created_at": appointment.created_at
         })
