@@ -59,7 +59,7 @@ def get_all_cars():
         "engine": car.engine,
         "transmission": car.transmission,
         "horsepower": car.horsepower,
-        "topSpeed": car.top
+        "topSpeed": car.topSpeed
         } for car in cars
     ]
     return jsonify(result)
@@ -87,7 +87,7 @@ def get_car(car_id):
         "engine": car.engine,
         "transmission": car.transmission,
         "horsepower": car.horsepower,
-        "topSpeed": car.top
+        "topSpeed": car.topSpeed
 
         
     }

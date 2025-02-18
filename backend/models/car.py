@@ -16,4 +16,4 @@ class Car(db.Model):
     topSpeed = db.Column(db.Integer) 
     availability = db.Column(db.Boolean, default=True)
     description = db.Column(db.Text)
-    picture = db.Column(db.String(255))  #
+    picture = db.Column(db.String(255)) 
