@@ -4,6 +4,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(255))
     lastname = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+    password = db.Column(db.String(255))
     role = db.Column(db.String(50))
     birthdate = db.Column(db.Date)
     city = db.Column(db.String(255))
