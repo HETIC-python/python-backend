@@ -1,19 +1,18 @@
-import React from "react";
 import { Route, Routes } from "react-router";
 
-import Navbar from "./Components/Navbar";
-import Cars from "./Components/Cars";
 import Car from "./Components/Car";
+import Cars from "./Components/Cars";
+import Navbar from "./Components/Navbar";
 import User from "./Components/User";
 
-import Appointments from "./Components/Appointments";
 import AppointmentForm from "./Components/AppointmentForm";
-import Services from "./Components/Services";
-import AdminCars from "./Components/admin/Cars";
-import CarForm from "./Components/admin/CarForm";
+import Appointments from "./Components/Appointments";
 import BookCar from "./Components/BookCar";
 import Login from "./Components/Login";
+import Services from "./Components/Services";
 import Signup from "./Components/Signup";
+import CarForm from "./Components/admin/CarForm";
+import AdminCars from "./Components/admin/Cars";
 
 function App() {
   return (
