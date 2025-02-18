@@ -3,6 +3,7 @@ import Navbar from "./Components/Navbar";
 import Cars from "./Components/Cars";
 import Car from "./Components/Car";
 import User from "./Components/User";
+import Login from "./Components/Login";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           </Route>
           <Route path="/user">
             <Route path=":id" element={<User />} />
+            <Route path="login" element={<Login/>} />
           </Route>
         </Routes>
       </main>
