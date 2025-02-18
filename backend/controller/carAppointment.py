@@ -1,9 +1,9 @@
 from typing import Optional, List
-from models.carAppointment import carAppointment, db
+from models.carAppointment import CarAppointment, db
 from datetime import date
 
 def create_car_appointment(user_id: int, car_id: int, date: date) -> carAppointment:
-    carAppointment = carAppointment(user_id=user_id, car_id=car_id, date=date)
+    carAppointment = CarAppointment(user_id=user_id, car_id=car_id, date=date)
     db.session.add(carAppointment)
     db.session.commit()
     return carAppointment
