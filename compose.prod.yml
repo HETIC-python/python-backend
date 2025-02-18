@@ -21,8 +21,5 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    environment:
-      - NODE_ENV=production
-      - VITE_BASE_URL=http://15.236.35.167:5000/api
     depends_on:
       - back
