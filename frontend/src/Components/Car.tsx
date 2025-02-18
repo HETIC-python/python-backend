@@ -45,12 +45,20 @@ export default function Car() {
 
   return (
     <div className="container mx-auto p-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-6 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-      >
-        ← Back
-      </button>
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+        >
+          ← Back
+        </button>
+        <button
+          onClick={() => navigate(`/car/${id}/book`)}
+          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+        >
+          Book a Test
+        </button>
+      </div>
 
       <div className="bg-white rounded-lg shadow-xl overflow-hidden">
         <img
