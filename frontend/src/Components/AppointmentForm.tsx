@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { ServiceType } from "./types/appointment";
 import { API_URL } from "../api";
 
 // const services: { type?: ServiceType; label: string; description: string }[] = [
@@ -49,7 +48,7 @@ function useServices() {
   const [services, setServices] = useState([]);
   useEffect(() => {
     getServices().then((data) => {
-      setServices(data);
+      setServices(data?.data || []);
     });
   }, []);
   return services as { name: string; description: string }[];
@@ -58,6 +57,7 @@ function useServices() {
 export default function AppointmentForm() {
   const navigate = useNavigate();
   const services = useServices();
+  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     carId: "",
@@ -67,10 +67,28 @@ export default function AppointmentForm() {
     notes: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     // Handle form submission
-    bookAppointment(formData); // TODO: Implement this function
+    const res = await fetch(`${API_URL}/appointments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...formData,
+        user_id: 1, // TODO: Replace with actual user ID
+        service_id: services.find((s) => s.name === formData.serviceName)?.id,
+      }),
+    });
+    if (res.status === 400) {
+      setError("Please fill in all fields");
+      return;
+    }
+    const data = await res.json();
+    console.log(data);
+    // bookAppointment(formData); // TODO: Implement this function
     console.log(formData);
     navigate("/appointments");
   };
@@ -78,6 +96,7 @@ export default function AppointmentForm() {
   return (
     <div className="container mx-auto p-6 max-w-2xl">
       <h1 className="text-2xl font-bold mb-6">Book an Appointment</h1>
+      {error && <p className="text-center text-red-500 mb-4">{error}</p>}
 
       <form
         onSubmit={handleSubmit}
@@ -88,7 +107,7 @@ export default function AppointmentForm() {
             Service Type
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {services.map((service) => (
+            {services?.map((service) => (
               <div
                 key={service?.name}
                 className={`p-4 border rounded-lg cursor-pointer ${
