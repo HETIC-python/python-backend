@@ -1,29 +1,23 @@
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
+
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from dotenv import PASSWORD # Get the real dotenv variable 
+
+from models import db
+from models.user import User
+from models.request import Request
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///.db' #TODO Put the real db name 
-app.config['JWT_SECRET_KEY'] = PASSWORD
-
-db = SQLAlchemy(app)
 jwt = JWTManager(app)
-
-class User(db.Model):
-    # User SQLA TODO: Make the real DB model But man I am not motivated 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(256), nullable=False)
 
 @app.route('/register', methods=['POST'])
 def register():
-    # Registers the new user TODO : IDK
     data = request.get_json()
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    new_user = User(username=data['username'], email=data['email'], password=hashed_password)
+    new_user = User(firstname=data['firstname'],lastname=data['lastname'],role=data['role'],birthdate=data['birthdate'],city=data['city'],adresse=data['adresse'],zipcode=data['zipcode'],job=data['job'],income=data['income'], email=data['email'], password=hashed_password)
     
     db.session.add(new_user)
     db.session.commit()
@@ -32,7 +26,6 @@ def register():
 
 @app.route('/login', methods=['POST'])
 def login():
-    # Logs the user in, wow. TODO : IDK
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
     
@@ -45,7 +38,6 @@ def login():
 @app.route('/profile', methods=['GET'])
 @jwt_required()
 def profile():
-    # Gets user profile TODO : More stuff like a clean get and DB call 
     current_user = get_jwt_identity()
     user = User.query.get(current_user['id'])
     
@@ -58,9 +50,17 @@ def profile():
 @app.route('/orders', methods=['GET'])
 @jwt_required()
 def orders():
-    #Dummy for now : TODO : Make Orders actually make something
-    pass
-
+    #Dummy for now : TODO : Make Orders actually display something
+    
+@app.route('order_car',methods=['POST'])
+jwt_required()
+def order_car(): 
+    data = request.get_json()
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user['id'])
+    car = data['id']
+    new_request = Request()
+    
 if __name__ == '__main__':
     db.create_all()
     app.run(debug=True)
