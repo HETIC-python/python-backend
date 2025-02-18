@@ -12,7 +12,7 @@ import Services from './Components/Services';
 import AdminCars from './Components/admin/Cars'
 import CarForm from './Components/admin/CarForm';
 import Login from "./Components/Login";
-
+import SignUp from "./Components/SignUp";
 
 function App() {
   return (
@@ -43,6 +43,7 @@ function App() {
           <Route path="/user">
             <Route path=":id" element={<User />} />
             <Route path="login" element={<Login/>} />
+            <Route path="signUp" element={<SignUp/>} />
           </Route>
           </Routes>
         </main>
