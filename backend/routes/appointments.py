@@ -20,12 +20,12 @@ def get_user_appointments(user_id):
         "id": appointment.id,
         "user_id": appointment.user_id,
         "service_id": appointment.service_id,
-        "date": appointment.date
+        "date": appointment.date,
         "created_at": appointment.created_at
     } for appointment in appointments])
 
 @appointment_bp.get("/appointments/<int:appointment_id>")
-def get_single_appointment(appointment_id)
+def get_single_appointment(appointment_id):
     appointment = get_appointment(appointment_id)
     if appointment:
         return jsonify({
@@ -40,7 +40,7 @@ def get_single_appointment(appointment_id)
 @appointment_bp.post("/appointments")
 def add_appointment():
     data = request.get_json()
-    if not data or "user_id" not in data or "service_id" not in data or date not in data:
+    if not data or "user_id" not in data or "service_id" not in data or "date" not in data:
         return jsonify({"message": "Champs manquant"}), 400
 
     appointment = create_appointment(data["user_id"], data["service_id"], data["date"])
@@ -48,12 +48,12 @@ def add_appointment():
         "id": appointment.id,
         "user_id": appointment.user_id,
         "service_id": appointment.service_id,
-        "date": appointment.date
+        "date": appointment.date,
         "created_at": appointment.created_at
     }), 201
 
 @appointment_bp.put("appointments/<int:appointment_id>")
-def modify_appointment(appointment_id)
+def modify_appointment(appointment_id):
     data = request.get_json()
     if not data or "date" not in data:
         return jsonify({"message": "Invalid data"}), 400
@@ -64,13 +64,13 @@ def modify_appointment(appointment_id)
             "id": appointment.id,
             "user_id": appointment.user_id,
             "service_id": appointment.service_id,
-            "date": appointment.date
+            "date": appointment.date,
             "created_at": appointment.created_at
         })
     return jsonify({"message": f"Couldn't resolve appointment with id : {appointment_id}"}), 404
 
 @appointment_bp.delete("/appointments/<int:appointment_id>")
-def remove_appointment(appointment_id)
+def remove_appointment(appointment_id):
     if delete_appointment(appointment_id):
         return jsonify({"message": f"Appointment with id : {appointment_id} deleted"})
     return jsonify({"message": f"Couldn't resolve appointment with id : {appointment_id}"}, 404) 

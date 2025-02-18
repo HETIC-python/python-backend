@@ -1,5 +1,5 @@
 from typing import Optional, List
-from models import Appointment, db
+from models.appointment import Appointment, db
 from datetime import date
 
 def create_appointment(user_id: int, service_id: int, date: date) -> Appointment:
