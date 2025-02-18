@@ -87,7 +87,7 @@ def get_car(car_id):
         "engine": car.engine,
         "transmission": car.transmission,
         "horsepower": car.horsepower,
-        "topSpeed": car.top
+        "topSpeed": car.topSpeed
 
         
     }
