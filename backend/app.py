@@ -4,6 +4,7 @@ from config import DATABASE_URI
 from models import db
 from routes.cars import cars_bp
 from routes.service import service_bp
+from routes.request  import request_bp
 from models.user import User
 from models.car import Car
 from models.request import Request
@@ -36,6 +37,7 @@ login_manager.init_app(app)
 
 app.register_blueprint(cars_bp, url_prefix="/api")
 app.register_blueprint(service_bp, url_prefix="/api")
+app.register_blueprint(request_bp, url_prefix="/api")
 
 if __name__ == "__main__":
     app.run(debug=True)
