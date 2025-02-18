@@ -11,3 +11,4 @@ class Request(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     price = db.Column(db.Numeric(10, 2))
     description = db.Column(db.Text)
+    status = db.Column(db.Enum('new', 'pending', 'on-processing', 'done'), default='new')
