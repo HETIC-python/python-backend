@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+=======
+import { useNavigate } from "react-router";
+import React, { useState } from "react";
+>>>>>>> 3fb7445b4ebe6a18a37f6f8fa6d27a34eeb4f02a
 
 interface FormData {
   name: string;

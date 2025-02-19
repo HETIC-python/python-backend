@@ -42,9 +42,9 @@ function App() {
             </Route>
 
             <Route path="/user">
-              <Route path=":id" element={<User />} />
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<Signup />} />
+              <Route path=":id" element={<User />} />
             </Route>
           </Routes>
         </main>
