@@ -8,4 +8,4 @@ class CarAppointment(db.Model):
     date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # car = db.relationship("Car", backref="carAppointments")
+    car = db.relationship("Car", backref="carAppointment")
