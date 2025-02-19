@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { API_URL } from "../api";
+import { useNavigate } from "react-router";
 
 function App() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -10,7 +13,7 @@ function App() {
 
     // Envoie la requête de connexion au backend
     try {
-      const response = await fetch("http://localhost:5000/login", {
+      const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -24,16 +27,13 @@ function App() {
         return;
       }
 
-      console.log(response);
-      
       const data = await response.json();
-      const token = data.access_token;
-
       // Stockage du token JWT dans localStorage
-      localStorage.setItem("token", token);
-
-      alert("Login Successful");
+      localStorage.setItem("token", data.token);
       setError("");
+      navigate("/");
+      
+
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error(err);

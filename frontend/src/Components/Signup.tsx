@@ -1,4 +1,4 @@
-import { data, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import React, { useState } from "react";
 import { API_URL } from "../api";
 
@@ -24,14 +24,14 @@ export default function SignUp() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     firstname: "",
-    birthdate: Date(),
+    birthdate: new Date(),
     job: "",
     income: 10000,
     lastname :"",
     email: "",
     password: "",
     confirmPassword: "",
-    phone: 0,
+    phone: +33,
     address: {
       street: "",
       city: "",
@@ -222,6 +222,21 @@ export default function SignUp() {
             />
           </div>
 
+          {/* Country Field */}
+          <div className="mb-4">
+            <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+              Country
+            </label>
+            <input
+              type="text"
+              id="country"
+              name="address.country"
+              value={formData.address.country}
+              onChange={handleAddressChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+
           {/* Password Field */}
           <div className="mb-4">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
@@ -254,6 +269,54 @@ export default function SignUp() {
             {errors.confirmPassword && (
               <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
             )}
+          </div>
+
+          {/* Birthdate Field */}
+          <div className="mb-4">
+            <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700">
+              Birthdate
+            </label>
+            <input
+              type="date"
+              id="birthdate"
+              name="birthdate"
+              value={formData.birthdate.toISOString().split('T')[0]}
+              onChange={(e) => setFormData((prevData) => ({
+                ...prevData,
+                birthdate: new Date(e.target.value),
+              }))}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+
+          {/* Job Field */}
+          <div className="mb-4">
+            <label htmlFor="job" className="block text-sm font-medium text-gray-700">
+              Job
+            </label>
+            <input
+              type="text"
+              id="job"
+              name="job"
+              value={formData.job}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+
+          {/* Income Field */}
+          <div className="mb-4">
+            <label htmlFor="income" className="block text-sm font-medium text-gray-700">
+              Income
+            </label>
+            <input
+              type="number"
+              id="income"
+              name="income"
+              value={formData.income}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            />
           </div>
 
           {/* Submit Button */}

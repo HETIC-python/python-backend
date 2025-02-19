@@ -17,24 +17,20 @@ from models.user import User
 from models.request import Request
 from models.appointment import Appointment
 
-app = Flask(__name__)
-jwt = JWTManager(app)
 user_bp = Blueprint('users', __name__)
 
 @user_bp.route('/register', methods=['POST'])
 def register():
     try : 
         data = request.get_json()
-        print(data)
         hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-        new_user = User(firstname=data['firstname'],lastname=data['lastname'],role="user",birthdate=data['birthdate'],city=data['city'],adresse=data['adresse'],zipcode=data['zipcode'],job=data['job'],income=data['income'], email=data['email'], password=hashed_password)
-        
+        new_user = User(firstname=data['firstname'],lastname=data['lastname'],role="user",birthdate=data['birthdate'],city=data['address']['city'],adresse=f"{data['address']['street']} {data['address']['city']} {data['address']['zipCode']}, {data['address']['country']}",zipcode=data['address']['zipCode'],job=data['job'],income=data['income'], email=data['email'], password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
     
         return jsonify({'success' : True, 'message': 'User registered successfully!'}), 201
     except :
-        return jsonify({'success' : False, 'message': 'Error occured!'}), 500
+        return jsonify({'success' : False, 'message': 'Error occurred!'}), 500
 
 @user_bp.route('/login', methods=['POST'])
 def login():
@@ -42,10 +38,11 @@ def login():
     user = User.query.filter_by(email=data['email']).first()
     
     if user and check_password_hash(user.password, data['password']):
-        access_token = create_access_token(identity={'id': user.id, 'username': user.username})
-        return jsonify({'token': access_token}), 200
+        username = f"{user.firstname}_{user.lastname}"
+        access_token = create_access_token(identity={'id': user.id, 'username': username, "role": user.role})
+        return jsonify({"success":True,'token': access_token}), 200
     
-    return jsonify({'message': 'Invalid credentials'}), 401
+    return jsonify({"success":False,'message': 'Invalid credentials'}), 401
 
 @user_bp.route('/profile', methods=['GET'])
 @admin_checking
