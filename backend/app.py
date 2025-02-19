@@ -5,6 +5,7 @@ from models import db
 from routes.cars import cars_bp
 from routes.service import service_bp
 from routes.request  import request_bp
+from routes.user import user_bp
 from models.user import User
 from models.car import Car
 from models.carAppointment import CarAppointment
@@ -15,6 +16,7 @@ from routes.appointments import appointment_bp
 from flask_login import LoginManager
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 from controller.service import (
     create_service,
     get_service,
@@ -25,6 +27,9 @@ from controller.service import (
 from flask_cors import CORS
 
 app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = "123ciseau" 
+jwt = JWTManager(app)
+
 CORS(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
@@ -43,6 +48,7 @@ app.register_blueprint(service_bp, url_prefix="/api")
 app.register_blueprint(request_bp, url_prefix="/api")
 app.register_blueprint(appointment_bp, url_prefix="/api")
 app.register_blueprint(car_appointment_bp, url_prefix="/api")
+app.register_blueprint(user_bp, url_prefix="/api")
 
 if __name__ == "__main__":
     # app.run(debug=True)

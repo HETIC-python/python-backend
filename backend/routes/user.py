@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response, Blueprint
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -17,33 +17,34 @@ from models.user import User
 from models.request import Request
 from models.appointment import Appointment
 
-app = Flask(__name__)
-jwt = JWTManager(app)
+user_bp = Blueprint('users', __name__)
 
-@app.route('/register', methods=['POST'])
+@user_bp.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    new_user = User(firstname=data['firstname'],lastname=data['lastname'],role=data['role'],birthdate=data['birthdate'],city=data['city'],adresse=data['adresse'],zipcode=data['zipcode'],job=data['job'],income=data['income'], email=data['email'], password=hashed_password)
+    try : 
+        data = request.get_json()
+        hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
+        new_user = User(firstname=data['firstname'],lastname=data['lastname'],role="user",birthdate=data['birthdate'],city=data['address']['city'],adresse=f"{data['address']['street']} {data['address']['city']} {data['address']['zipCode']}, {data['address']['country']}",zipcode=data['address']['zipCode'],job=data['job'],income=data['income'], email=data['email'], password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
     
-    db.session.add(new_user)
-    db.session.commit()
-    
-    return jsonify({'message': 'User registered successfully!'}), 201
+        return jsonify({'success' : True, 'message': 'User registered successfully!'}), 201
+    except :
+        return jsonify({'success' : False, 'message': 'Error occurred!'}), 500
 
-@app.route('/login', methods=['POST'])
+@user_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
     
     if user and check_password_hash(user.password, data['password']):
-        access_token = create_access_token(identity={'id': user.id, 'username': user.username})
-        return jsonify({'token': access_token}), 200
+        username = f"{user.firstname}_{user.lastname}"
+        access_token = create_access_token(identity={'id': user.id, 'username': username, "role": user.role})
+        return jsonify({"success":True,'token': access_token}), 200
     
-    return jsonify({'message': 'Invalid credentials'}), 401
+    return jsonify({"success":False,'message': 'Invalid credentials'}), 401
 
-
-@app.route('/profile', methods=['GET'])
+@user_bp.route('/profile', methods=['GET'])
 @admin_checking
 @jwt_required()
 def profile():
@@ -56,8 +57,13 @@ def profile():
         'email': user.email
     })
 
-    
-@app.route('order_car',methods=['POST'])
+@user_bp.route('/orders', methods=['GET'])
+@jwt_required()
+def orders():
+    #Dummy for now : TODO : Make Orders actually display something
+    pass
+
+@user_bp.route('order_car',methods=['POST'])
 @jwt_required()
 @admin_checking
 def order_car(): 
