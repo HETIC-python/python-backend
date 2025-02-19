@@ -38,8 +38,8 @@ function App() {
               <Route path="cars" element={<AdminCars />} />
               <Route path="cars/:id" element={<CarForm />} />
               {/* <Route path="create" element={<AppointmentForm />} /> */}
+            <Route path="services" element={<Services />} />
             </Route>
-            <Route path="/services" element={<Services />} />
 
             <Route path="/user">
               <Route path=":id" element={<User />} />

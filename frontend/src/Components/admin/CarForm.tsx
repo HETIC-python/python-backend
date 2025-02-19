@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Car } from "../types/car";
 import { API_URL } from "../../api";
@@ -24,6 +24,8 @@ function CarForm() {
     description: "",
     picture: "",
   });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (id && id !== "new") {
@@ -46,6 +48,33 @@ function CarForm() {
       setIsLoading(false);
     }
   };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      
+      // Read file as base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          picture: reader.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +122,51 @@ function CarForm() {
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+        <div className="col-span-2 mb-6">
+          <label className="block mb-2">Car Image:</label>
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0">
+              {(previewUrl || formData.picture) && (
+                <img
+                  src={previewUrl || formData.picture}
+                  alt="Car preview"
+                  className="w-48 h-48 object-cover rounded border"
+                />
+              )}
+            </div>
+            <div className="flex-grow">
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+              >
+                Choose Image
+              </button>
+              {(previewUrl || formData.picture) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviewUrl(null);
+                    setFormData(prev => ({ ...prev, picture: '' }));
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                    }
+                  }}
+                  className="ml-2 text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
         <div className="mb-4">
           <label className="block mb-2">Name:</label>
           <input
