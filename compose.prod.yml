@@ -4,11 +4,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "127.0.0.1:5000:5000"
+      - "0.0.0.0:5000:5000"
     volumes:
       - ./backend:/app
-    environment:
-      - NODE_ENV=development
+    env_file:
+      - path: .env
 
   front:
     build:
@@ -16,11 +16,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5173:5173"
+    env_file:
+      - .env
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    environment:
-      - NODE_ENV=production
-      - VITE_BASE_URL=http//127.0.0.1:5000/api
     depends_on:
       - back

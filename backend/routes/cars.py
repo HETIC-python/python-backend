@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, Blueprint
+from flask import request, jsonify, make_response, Blueprint
 from models import db  # Assurez-vous que votre module db est bien importé
 
 from models.car import Car  # Importation de votre classe Car
@@ -23,7 +23,13 @@ def create_car():
             type=data['type'],
             code=data['code'],
             availability=data['availability'],
-            description=data['description']
+            description=data['description'],
+            price=data['price'],
+            picture=data['picture'],
+            engine=data['engine'],
+            transmission=data['transmission'],
+            horsepower=data['horsepower'],
+            topSpeed=data['topSpeed']
         )
         db.session.add(new_car)
         db.session.commit()
@@ -47,7 +53,13 @@ def get_all_cars():
             "type": car.type,
             "code": car.code,
             "availability": car.availability,
-            "description": car.description
+            "description": car.description,
+            "price": car.price,
+        "picture": car.picture,
+        "engine": car.engine,
+        "transmission": car.transmission,
+        "horsepower": car.horsepower,
+        "topSpeed": car.topSpeed
         } for car in cars
     ]
     return jsonify(result)
@@ -69,7 +81,15 @@ def get_car(car_id):
         "type": car.type,
         "code": car.code,
         "availability": car.availability,
-        "description": car.description
+        "description": car.description,
+        "price": car.price,
+        "picture": car.picture,
+        "engine": car.engine,
+        "transmission": car.transmission,
+        "horsepower": car.horsepower,
+        "topSpeed": car.topSpeed
+
+        
     }
     return jsonify(result)
 
@@ -92,6 +112,12 @@ def update_car(car_id):
         car.code = data.get('code', car.code)
         car.availability = data.get('availability', car.availability)
         car.description = data.get('description', car.description)
+        car.price = data.get('price', car.price)
+        car.picture = data.get('picture', car.picture)
+        car.engine = data.get('engine', car.engine)
+        car.transmission = data.get('transmission', car.transmission)
+        car.horsepower = data.get('horsepower', car.horsepower)
+        car.topSpeed = data.get('topSpeed', car.topSpeed)
 
         db.session.commit()
         return make_response(jsonify({"message": "Car updated successfully"}), 200)
