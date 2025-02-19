@@ -61,7 +61,7 @@ export default function AppointmentForm() {
 
   const [formData, setFormData] = useState({
     carId: "",
-    date: "",
+    date: "", // TODO: date + time when sending the request
     time: "",
     serviceName: "",
     notes: "",

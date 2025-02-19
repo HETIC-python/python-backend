@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
   name: string;
