@@ -1,15 +1,25 @@
 from typing import Optional, List
+from datetime import datetime
 from models import db
 from models.request import Request
 
-def create_request(title: str, description: str, user_id: int, car_id: int) -> Request:
-    request = Request(
-        title=title,
-        description=description,
-        user_id=user_id,
-        car_id=car_id,
-        status="pending"
-    )
+def create_request(
+    type: str,
+    status: str,
+    user_id: int,
+    car_id: int,
+    start_date: datetime,
+    **kwargs
+) -> Request:
+    request_data = {
+        "type": type,
+        "status": status,
+        "user_id": user_id,
+        "car_id": car_id,
+        "start_date": start_date,
+        **kwargs
+    }
+    request = Request(**request_data)
     db.session.add(request)
     db.session.commit()
     return request
@@ -27,19 +37,28 @@ def get_car_requests(car_id: int) -> List[Request]:
     return Request.query.filter_by(car_id=car_id).all()
 
 def update_request(
-    request_id: int, 
-    title: Optional[str] = None,
+    request_id: int,
+    type: Optional[str] = None,
     description: Optional[str] = None,
-    status: Optional[str] = None
+    status: Optional[str] = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    price: Optional[float] = None
 ) -> Optional[Request]:
     request = get_request(request_id)
     if request:
-        if title is not None:
-            request.title = title
+        if type is not None:
+            request.type = type
         if description is not None:
             request.description = description
         if status is not None:
             request.status = status
+        if start_date is not None:
+            request.start_date = start_date
+        if end_date is not None:
+            request.end_date = end_date
+        if price is not None:
+            request.price = price
         db.session.commit()
     return request
 
