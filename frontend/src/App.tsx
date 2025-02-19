@@ -9,7 +9,10 @@ import AppointmentForm from "./Components/AppointmentForm";
 import Appointments from "./Components/Appointments";
 import BookCar from "./Components/BookCar";
 import Login from "./Components/Login";
-
+import Services from "./Components/Services";
+import Signup from "./Components/Signup";
+import CarForm from "./Components/admin/CarForm";
+import AdminCars from "./Components/admin/Cars";
 
 function App() {
   return (
@@ -35,13 +38,14 @@ function App() {
               <Route path="cars" element={<AdminCars />} />
               <Route path="cars/:id" element={<CarForm />} />
               {/* <Route path="create" element={<AppointmentForm />} /> */}
+            <Route path="services" element={<Services />} />
             </Route>
-            <Route path="/services" element={<Services />} />
-           
-          <Route path="/user">
-            <Route path=":id" element={<User />} />
-            <Route path="login" element={<Login/>} />
-          </Route>
+
+            <Route path="/user">
+              <Route path=":id" element={<User />} />
+              <Route path="login" element={<Login />} />
+              <Route path="signup" element={<Signup />} />
+            </Route>
           </Routes>
         </main>
       </div>

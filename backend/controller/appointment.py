@@ -1,8 +1,8 @@
 from typing import Optional, List
 from models.appointment import Appointment, db
-from datetime import date
+from datetime import datetime
 
-def create_appointment(user_id: int, service_id: int, date: date) -> Appointment:
+def create_appointment(user_id: int, service_id: int, date: datetime) -> Appointment:
     appointment = Appointment(user_id=user_id, service_id=service_id, date=date)
     db.session.add(appointment)
     db.session.commit()
@@ -17,7 +17,7 @@ def get_appointments_by_user_id(user_id: int) -> List[Appointment]:
 def get_all_appointments() -> List[Appointment]:
     return Appointment.query.all()
 
-def update_appointment(appointment_id: int, date: Optional[date]= None) -> Optional[Appointment]:
+def update_appointment(appointment_id: int, date: Optional[datetime]= None) -> Optional[Appointment]:
     appointment = get_appointment(appointment_id)
     if appointment and date is not None :
         appointment.date = date
