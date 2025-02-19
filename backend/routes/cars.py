@@ -1,4 +1,5 @@
 from flask import request, jsonify, make_response, Blueprint
+from service.s3_service import upload_file_to_s3
 from models import db  # Assurez-vous que votre module db est bien importé
 
 from models.car import Car  # Importation de votre classe Car
@@ -25,7 +26,7 @@ def create_car():
             availability=data['availability'],
             description=data['description'],
             price=data['price'],
-            picture=data['picture'],
+            # picture=data['picture'],
             engine=data['engine'],
             transmission=data['transmission'],
             horsepower=data['horsepower'],
@@ -138,3 +139,31 @@ def delete_car(car_id):
         return make_response(jsonify({"message": "Car deleted successfully"}), 200)
     except Exception as e:
         return make_response(jsonify({"message": f"Error deleting car: {str(e)}"}), 500)
+
+
+
+@cars_bp.route("/cars/upload/<int:car_id>", methods=["POST"])
+def upload_file(car_id):
+    if "file" not in request.files:
+        return jsonify({"error": "No file found"}), 400
+    
+    file = request.files["file"]
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    try:
+        # Upload to S3 and get the URL
+        file_url = upload_file_to_s3(file)
+        
+        # Update the car's picture URL in the database
+        car = Car.query.get(car_id)
+        if car:
+            car.picture = file_url
+            db.session.commit()
+        
+        return jsonify({
+            "message": "File uploaded successfully",
+            "url": file_url
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

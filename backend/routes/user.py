@@ -8,6 +8,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
+from utils.admin import admin_checking
+
 from datetime import datetime
 
 from models import db
@@ -46,6 +48,7 @@ def login():
     return jsonify({'message': 'Invalid credentials'}), 401
 
 @user_bp.route('/profile', methods=['GET'])
+@admin_checking
 @jwt_required()
 def profile():
     current_user = get_jwt_identity()
@@ -62,9 +65,10 @@ def profile():
 def orders():
     #Dummy for now : TODO : Make Orders actually display something
     pass
-    
+
 @user_bp.route('order_car',methods=['POST'])
 @jwt_required()
+@admin_checking
 def order_car(): 
     try:
         data = request.get_json()
@@ -78,7 +82,7 @@ def order_car():
         service_id = data.get('service_id')
         start_date = datetime.strptime(data.get('start_date'), '%Y-%m-%d')
         end_date = datetime.strptime(data.get('end_date'), '%Y-%m-%d')
-        created_at = datetime.now()
+        created_at = datetime.now() # TODO ¨now¨, A enlever si ca cause des problemes
         
         new_request = Request(
             type=data.get('type'),
@@ -91,15 +95,6 @@ def order_car():
             description=data.get('description')
         )
         db.session.add(new_request)
-        db.session.commit()
-        
-        new_appointment = Appointment(
-            user_id=user.id,
-            service_id=service_id,
-            date=start_date,
-            created_at=created_at
-        )
-        db.session.add(new_appointment)
         db.session.commit()
         
         return jsonify({'message': 'Car order placed successfully', 'request_id': new_request.id, 'appointment_id': new_appointment.id}), 201
