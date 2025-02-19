@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Car } from "../types/car";
 import { API_URL } from "../../api";
@@ -14,6 +14,7 @@ function CarForm() {
     model: "",
     brand: "",
     km: 0,
+    price: 0,
     type: "",
     code: "",
     engine: "",
@@ -26,6 +27,7 @@ function CarForm() {
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (id && id !== "new") {
@@ -50,18 +52,21 @@ function CarForm() {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e?.target?.files?.[0]) {
+      setFile(e.target.files[0]);
+    }
     const file = e.target.files?.[0];
     if (file) {
       // Create preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-      
+
       // Read file as base64
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          picture: reader.result as string
+          picture: reader.result as string,
         }));
       };
       reader.readAsDataURL(file);
@@ -79,6 +84,11 @@ function CarForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setError(null);
+      if(!file){
+        setError("Please select a file first");
+        return;
+      }
       const url =
         id && id !== "new" ? `${API_URL}/cars/${id}` : `${API_URL}/cars`;
       const method = id && id !== "new" ? "PUT" : "POST";
@@ -88,10 +98,13 @@ function CarForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, picture: undefined }),
       });
 
       const data = await response.json();
+      if (data?.messages?.includes("updated")) {
+        await handleSubmitUpload(e);
+      }
       if (id != "new" && data.message?.includes("updated")) {
         navigate("/admin/cars");
       } else if (data.message?.includes("created")) {
@@ -99,7 +112,39 @@ function CarForm() {
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
+      console.error(err);
       setError("Error saving car");
+    }
+  };
+
+  const handleSubmitUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) {
+      setError("Please select a file first");
+      return;
+    }
+
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append("file", file);
+
+      const url = `${API_URL}/cars/upload/${1}`;
+      const response = await fetch(url, {
+        method: "POST",
+        // Remove the Content-Type header to let the browser set it with the boundary
+        body: formDataObj,
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        setFormData((prev) => ({
+          ...prev,
+          picture: data.url,
+        }));
+        setPreviewUrl(data.url);
+      }
+    } catch (err) {
+      setError("Error uploading file");
     }
   };
 
@@ -141,6 +186,8 @@ function CarForm() {
                 accept="image/*"
                 onChange={handleFileSelect}
                 className="hidden"
+                name="picture"
+                required
               />
               <button
                 type="button"
@@ -154,9 +201,9 @@ function CarForm() {
                   type="button"
                   onClick={() => {
                     setPreviewUrl(null);
-                    setFormData(prev => ({ ...prev, picture: '' }));
+                    setFormData((prev) => ({ ...prev, picture: "" }));
                     if (fileInputRef.current) {
-                      fileInputRef.current.value = '';
+                      fileInputRef.current.value = "";
                     }
                   }}
                   className="ml-2 text-red-600 hover:text-red-800"
@@ -292,12 +339,12 @@ function CarForm() {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">Picture URL:</label>
+          <label className="block mb-2">Price:</label>
           <input
-            type="text"
-            value={formData.picture || ""}
+            type="number"
+            value={formData.price || ""}
             onChange={(e) =>
-              setFormData({ ...formData, picture: e.target.value })
+              setFormData({ ...formData, price: parseInt(e.target.value) })
             }
             className="w-full p-2 border rounded"
           />

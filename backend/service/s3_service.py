@@ -1,7 +1,7 @@
 import boto3
 import os
 from werkzeug.utils import secure_filename
-from config import Config
+from aws import Config
 
 s3_client = boto3.client(
     "s3",
@@ -18,8 +18,8 @@ def upload_file_to_s3(file, bucket_name=Config.AWS_BUCKET_NAME):
         return None
 
     filename = secure_filename(file.filename)
-    if not filename.lower().endswith(".pdf"):
-        raise ValueError("Seuls les fichiers PDF sont autorisés")
+    # if not filename.lower().endswith(".pdf"):
+    #     raise ValueError("Seuls les fichiers PDF sont autorisés")
 
     s3_path = f"uploads/{filename}"  # Dossier "uploads/" dans S3
     s3_client.upload_fileobj(file, bucket_name, s3_path, ExtraArgs={"ContentType": "application/pdf"})
