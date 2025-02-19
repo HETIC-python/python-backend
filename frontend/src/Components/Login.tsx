@@ -24,6 +24,8 @@ function App() {
         return;
       }
 
+      console.log(response);
+      
       const data = await response.json();
       const token = data.access_token;
 

@@ -1,33 +1,42 @@
-import { useNavigate } from "react-router";
+import { data, useNavigate } from "react-router";
 import React, { useState } from "react";
+import { API_URL } from "../api";
 
 interface FormData {
-  name: string;
+  firstname: string;
+  lastname: string;
   email: string;
+  birthdate: Date;
+  job: string;
+  income: number; 
   password: string;
   confirmPassword: string;
-  phone: string;
+  phone: number;
   address: {
     street: string;
     city: string;
     country: string;
-    zipCode: string;
+    zipCode: number;
   };
 }
 
 export default function SignUp() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
-    name: "",
+    firstname: "",
+    birthdate: Date(),
+    job: "",
+    income: 10000,
+    lastname :"",
     email: "",
     password: "",
     confirmPassword: "",
-    phone: "",
+    phone: 0,
     address: {
       street: "",
       city: "",
       country: "",
-      zipCode: "",
+      zipCode: 0,
     },
   });
 
@@ -42,6 +51,16 @@ export default function SignUp() {
     }));
   };
 
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      ['address']: {...prevData['address'],[name.split('.')[1]] : value},
+    }));
+    console.log(formData);
+    
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrors(validate(formData));
@@ -50,7 +69,8 @@ export default function SignUp() {
 
   const validate = (values: FormData) => {
     const errors: any = {};
-    if (!values.name) errors.name = "Name is required";
+    if (!values.firstname) errors.firstname = "Firstname is required";
+    if (!values.lastname) errors.lastname = "Lastname is required";
     if (!values.email) errors.email = "Email is required";
     if (!values.password) errors.password = "Password is required";
     if (values.password !== values.confirmPassword)
@@ -62,9 +82,24 @@ export default function SignUp() {
     return errors;
   };
 
-  const handleSuccess = () => {
-    // Redirect to the login page or dashboard after successful signup
-    navigate("/login");
+  const handleSuccess = async () => {
+    
+      try {
+          const response = await fetch(`${API_URL}/register`,{
+            method:"POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+          const data = await response.json();
+          if (data.success) {
+            navigate("/user/login");
+          }
+      } catch (err) {
+          console.error(err);
+          setErrors("Erreur lors de l'enregistrement de l'utilisateur");
+      }
   };
 
   // When form is successfully submitted (no validation errors)
@@ -77,22 +112,38 @@ export default function SignUp() {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4 text-center">Create an Account</h2>
         <form onSubmit={handleSubmit}>
-          {/* Name Field */}
+          {/* Firstname Field */}
           <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Full Name
+            <label htmlFor="firstname" className="block text-sm font-medium text-gray-700">
+              First Name
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="firstname"
+              name="firstname"
+              value={formData.firstname}
               onChange={handleChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
-            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+            {errors.firstname && <p className="text-red-500 text-sm">{errors.firstname}</p>}
           </div>
 
+          {/* Lastname Field */}
+          <div className="mb-4">
+                      <label htmlFor="lastname" className="block text-sm font-medium text-gray-700">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        id="lastname"
+                        name="lastname"
+                        value={formData.lastname}
+                        onChange={handleChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                      />
+                      {errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
+                    </div>
+                    
           {/* Email Field */}
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -115,7 +166,7 @@ export default function SignUp() {
               Phone Number
             </label>
             <input
-              type="text"
+              type="number"
               id="phone"
               name="phone"
               value={formData.phone}
@@ -135,7 +186,7 @@ export default function SignUp() {
               id="street"
               name="address.street"
               value={formData.address.street}
-              onChange={handleChange}
+              onChange={handleAddressChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
             {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
@@ -151,7 +202,7 @@ export default function SignUp() {
               id="city"
               name="address.city"
               value={formData.address.city}
-              onChange={handleChange}
+              onChange={handleAddressChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -162,11 +213,11 @@ export default function SignUp() {
               Zip Code
             </label>
             <input
-              type="text"
+              type="number"
               id="zipCode"
               name="address.zipCode"
               value={formData.address.zipCode}
-              onChange={handleChange}
+              onChange={handleAddressChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
