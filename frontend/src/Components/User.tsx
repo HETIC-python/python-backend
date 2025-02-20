@@ -29,9 +29,8 @@ export default function User() {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log({token});
         if (!token || !isAuthenticated) {
-          // navigate('/user/login', { replace: true });
+           navigate('/user/login', { replace: true });
           return;
         }
 
@@ -48,7 +47,6 @@ export default function User() {
         }
 
         const data = await response.json();
-        console.log(data);
         setUser(data);
         updateUser(data);
       } catch (err) {

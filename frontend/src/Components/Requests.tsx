@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import RequestComponent from './Request';
 import { Request, RequestResponse } from './types/request';
 import { API_URL } from '../api';
 import { Car } from './types/car';
 import { User } from './types/user';
+import { useUser } from '../context/user';
+import { useNavigate } from "react-router";
 
 const Requests: React.FC = () => {
     const [requests, setRequests] = useState<Request[]>([]);
@@ -13,8 +15,11 @@ const Requests: React.FC = () => {
     const [editingRequest, setEditingRequest] = useState<Request | null>(null);
     const [cars, setCars] = useState<Car[]>([]);
     const [users, setUsers] = useState<User[]>([]);
-    const userHasAdminRole = false;
-    const currentUserId = 1;
+    const [userHasAdminRole,setUserHasAdminRole] = useState(false);
+    const navigate = useNavigate()
+    const [user, setUser] = useState<User | null>(null);
+    const { updateUser, isAuthenticated } = useUser();
+    
 
     const [formData, setFormData] = useState({
         type: '',
@@ -23,12 +28,22 @@ const Requests: React.FC = () => {
         end_date: '',
         price: '',
         car_id: '',
-        user_id: currentUserId.toString()
+        user_id: user?.id.toString()
     });
 
     const fetchRequests = async () => {
         try {
-            const response = await fetch(`${API_URL}/requests`);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No token found');
+            }
+
+            const response = await fetch(`${API_URL}/requests`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             const data: RequestResponse = await response.json();
             if (data.success && Array.isArray(data.data)) {
                 setRequests(data.data);
@@ -41,6 +56,43 @@ const Requests: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        const fetchUser = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token || !isAuthenticated) {
+               navigate('/user/login', { replace: true });
+              return;
+            }
+    
+            const response = await fetch(`${API_URL}/profile`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+    
+            if (!response.ok) {
+              throw new Error('Failed to fetch user');
+            }
+    
+            const data = await response.json();
+            setUser(data);
+            updateUser(data);
+            setUserHasAdminRole(data.role=="admin")
+          } catch (err) {
+            console.error('Error fetching user:', err);
+            setError(err instanceof Error ? err.message : 'Error fetching user data');
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        
+        fetchUser();
+      }, [isAuthenticated]); // removed updateUser from dependencies
+
+      
     useEffect(() => {
         fetchRequests();
     }, []);
@@ -63,7 +115,22 @@ const Requests: React.FC = () => {
         if (userHasAdminRole) {
             const fetchUsers = async () => {
                 try {
-                    const response = await fetch(`${API_URL}/users`);
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        throw new Error('No token found');
+                    }
+
+                    const response = await fetch(`${API_URL}/users`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch users');
+                    }
+
                     const data = await response.json();
                     if (data.success) {
                         setUsers(data.data);
@@ -77,6 +144,7 @@ const Requests: React.FC = () => {
         }
     }, [userHasAdminRole]);
 
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -103,7 +171,7 @@ const Requests: React.FC = () => {
             if (data.success) {
                 await fetchRequests();
                 setShowForm(false);
-                setFormData({ type: '', description: '', start_date: '', end_date: '', price: '', status: 'new', car_id: '', user_id: currentUserId.toString() });
+                setFormData({ type: '', description: '', start_date: '', end_date: '', price: '', status: 'new', car_id: '', user_id: user?.id.toString() });
                 setEditingRequest(null);
             }
         } catch (error) {
@@ -145,7 +213,7 @@ const Requests: React.FC = () => {
                             end_date: '',
                             price: '',
                             car_id: '',
-                            user_id: currentUserId.toString()
+                            user_id: user?.id.toString()
                         });
                         setShowForm(!showForm);
                     }}

@@ -20,9 +20,9 @@ import { isUserAdmin } from "./utils/user";
 import { useEffect } from "react";
 
 function App() {
-  useEffect(() => {
-    isUserAdmin();
-  }, []);
+  //useEffect(() => {
+  //  isUserAdmin();
+  // }, []);
   return (
     <>
       <UserProvider>

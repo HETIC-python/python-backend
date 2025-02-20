@@ -99,7 +99,7 @@ function Login() {
             <div className="mt-2 w-full py-2 font-semibold rounded-md transition flex items-center">
               <h2 className="px-4 py-2">Don't have an account?</h2>
               <a
-                href="/signUp"
+                href="/user/signup"
                 className="underline rounded-md hover:bg-gray-300"
               >
                 Sign Up
