@@ -15,8 +15,13 @@ import CarForm from "./Components/admin/CarForm";
 import AdminCars from "./Components/admin/Cars";
 import { UserProvider } from "./context/user";
 import Authenticated from "./Components/Authenticated";
+import { isUserAdmin } from "./utils/user";
+import { useEffect } from "react";
 
 function App() {
+  useEffect(() => {
+    isUserAdmin();
+  }, []);
   return (
     <>
       <UserProvider>
