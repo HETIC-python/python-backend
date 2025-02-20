@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import RequestComponent from './Request';
 import { Request, RequestResponse } from './types/request';
 import { API_URL } from '../api';
@@ -28,6 +28,7 @@ const Requests: React.FC = () => {
         end_date: '',
         price: '',
         car_id: '',
+        status:'',
         user_id: user?.id.toString()
     });
 
@@ -37,8 +38,11 @@ const Requests: React.FC = () => {
             if (!token) {
                 throw new Error('No token found');
             }
-
-            const response = await fetch(`${API_URL}/requests`, {
+            const requestsUrl = userHasAdminRole 
+                ? `${API_URL}/requests`  
+                : `${API_URL}/requests?user_id=${user?.id}`; 
+                
+            const response = await fetch(requestsUrl, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -95,7 +99,7 @@ const Requests: React.FC = () => {
       
     useEffect(() => {
         fetchRequests();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const fetchCars = async () => {
@@ -213,6 +217,7 @@ const Requests: React.FC = () => {
                             end_date: '',
                             price: '',
                             car_id: '',
+                            'status':'',
                             user_id: user?.id.toString()
                         });
                         setShowForm(!showForm);
@@ -264,6 +269,7 @@ const Requests: React.FC = () => {
                                     >
                                         <option value="new">Nouveau</option>
                                         <option value="pending">En attente</option>
+                                        <option value="on-processing">En cours de traitement</option>
                                         <option value="accepted">Accepté</option>
                                         <option value="rejected">Rejeté</option>
                                     </select>

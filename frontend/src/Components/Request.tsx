@@ -27,11 +27,18 @@ const RequestComponent: React.FC<RequestProps> = ({ request, onDelete, onEdit })
                 <div className="flex justify-between items-start">
                     <div>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium
-                            ${request.status === 'new' ? 'bg-blue-100 text-blue-800' : 
-                            request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                            request.status === 'accepted' ? 'bg-green-100 text-green-800' : 
-                            'bg-red-100 text-red-800'}`}>
-                            {request.status}
+                            ${request.status === 'new' ? 'bg-blue-100 text-blue-800' :
+                            request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            request.status === 'on-processing' ? 'bg-orange-100 text-orange-800' :
+                            request.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                            request.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                            'bg-gray-100 text-gray-800'}`}>
+                            {request.status === 'new' ? 'Nouveau' :
+                             request.status === 'pending' ? 'En attente' :
+                             request.status === 'on-processing' ? 'En cours' :
+                             request.status === 'rejected' ? 'Rejeté' :
+                             request.status === 'accepted' ? 'Accepté' :
+                             request.status}
                         </span>
                         <h3 className="text-xl font-bold mt-2">Demande de {getTypeLabel(request.type)}</h3>
                     </div>
