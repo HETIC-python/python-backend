@@ -33,7 +33,6 @@ def register():
         return jsonify({'success' : False, 'message': 'Error occurred!'}), 500
 
 @user_bp.route('/login', methods=['POST'])
-@user_bp.route('/login', methods=['POST'])
 def login():
     try:
         data = request.get_json()
@@ -67,7 +66,6 @@ def login():
 def profile():
     current_user = get_jwt_identity()
     user = User.query.get(str(current_user))
-    
     return jsonify({
         'id': user.id,
         'firstname': user.firstname,
@@ -125,3 +123,32 @@ def order_car():
 if __name__ == '__main__':
     db.create_all()
     app.run(debug=True)
+
+@user_bp.route('/users', methods=['GET'])
+@jwt_required()
+@admin_checking
+def get_users():
+    try:
+        users = User.query.all()
+        users_list = [{
+            'id': user.id,
+            'email': user.email,
+            'firstname': user.firstname,
+            'lastname': user.lastname,
+            'role': user.role,
+            'adresse': user.adresse,
+            'zipcode': user.zipcode,
+            'job': user.job,
+            'income': user.income
+        } for user in users]
+        
+        return jsonify({
+            'success': True,
+            'data': users_list
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500

@@ -13,15 +13,16 @@ import Services from "./Components/Services";
 import Signup from "./Components/Signup";
 import CarForm from "./Components/admin/CarForm";
 import AdminCars from "./Components/admin/Cars";
+import Requests from "./Components/Requests";
 import { UserProvider } from "./context/user";
 import Authenticated from "./Components/Authenticated";
 import { isUserAdmin } from "./utils/user";
 import { useEffect } from "react";
 
 function App() {
-  useEffect(() => {
-    isUserAdmin();
-  }, []);
+  //useEffect(() => {
+  //  isUserAdmin();
+  // }, []);
   return (
     <>
       <UserProvider>
@@ -73,6 +74,7 @@ function App() {
               <Route path="/user">
                 <Route path="login" element={<Login />} />
                 <Route path="signup" element={<Signup />} />
+                <Route path="requests" element={<Requests />} />
                 <Route index element={<User />} />
               </Route>
             </Routes>

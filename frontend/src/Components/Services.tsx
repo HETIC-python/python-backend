@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import ServiceComponent from './Service';
 import { Service, ServiceResponse } from './types/service';
 import { API_URL } from "../api";
+import { useUser } from '../context/user'; 
+import { useNavigate } from "react-router";
 
 const Services: React.FC = () => {
     const [services, setServices] = useState<Service[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showForm, setShowForm] = useState(false);
+    const { updateUser, isAuthenticated } = useUser();
+    const [userHasAdminRole,setUserHasAdminRole] = useState(false);
+
+    const navigate = useNavigate()
     const [formData, setFormData] = useState<Partial<Service>>({
         name: '',
         description: ''
@@ -32,6 +38,42 @@ const Services: React.FC = () => {
     useEffect(() => {
         fetchServices();
     }, []);
+
+
+    useEffect(() => {
+        const fetchUser = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token || !isAuthenticated) {
+               navigate('/user/login', { replace: true });
+              return;
+            }
+    
+            const response = await fetch(`${API_URL}/profile`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+    
+            if (!response.ok) {
+              throw new Error('Failed to fetch user');
+            }
+    
+            const data = await response.json();
+            updateUser(data);
+            setUserHasAdminRole(data.role=="admin")
+          } catch (err) {
+            console.error('Error fetching user:', err);
+            setError(err instanceof Error ? err.message : 'Error fetching user data');
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        
+        fetchUser();
+      }, [isAuthenticated]); // removed updateUser from dependencies
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -88,6 +130,8 @@ const Services: React.FC = () => {
     if (isLoading) return <div>Chargement...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
 
+    if (userHasAdminRole) {
+        
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-4">
@@ -142,6 +186,14 @@ const Services: React.FC = () => {
             </div>
         </div>
     );
+    } else {
+        setError("Vous n'avez pas l'acces à cette page")
+        return (
+            <div>
+            {error}
+            </div>
+        )
+    }
 };
 
 export default Services; 
