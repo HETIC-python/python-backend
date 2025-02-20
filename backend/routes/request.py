@@ -67,7 +67,7 @@ def get_single_request(request_id):
 @request_bp.post("/requests")
 def add_request():
     data = request.get_json()
-    required_fields = ["type", "status", "user_id", "car_id", "start_date"]
+    required_fields = ["type", "user_id", "car_id", "start_date"]
     if not data or not all(k in data for k in required_fields):
         return jsonify({
             "success": False,
@@ -76,102 +76,41 @@ def add_request():
     
     try:
         start_date = datetime.fromisoformat(data["start_date"])
-        print(start_date)
 
-        if "end_date" in data:
-            try:
-                data["end_date"] = datetime.fromisoformat(data["end_date"])
-            except ValueError:
-                return jsonify({
-                    "success": False,
-                    "message": "Format de end_date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
-                }), 400
-    except ValueError:
-        return jsonify({
-            "success": False,
-            "message": "Format de start_date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
-        }), 400
+        request_data = {
+            "type": data["type"],
+            "status": "new",  # Toujours 'new' à la création
+            "user_id": data["user_id"],
+            "car_id": data["car_id"],
+            "start_date": start_date
+        }
 
-    request_data = {
-        "type": data["type"],
-        "status": data["status"],
-        "user_id": data["user_id"],
-        "car_id": data["car_id"],
-        "start_date": start_date
-    }
+        # Gestion des champs optionnels
+        optional_fields = {
+            "description": str,
+            "end_date": lambda x: datetime.fromisoformat(x),
+            "price": float
+        }
 
-    if "description" in data:
-        request_data["description"] = data["description"]
-    if "end_date" in data:
-        request_data["end_date"] = data["end_date"]
-    if "price" in data:
+        for field, converter in optional_fields.items():
+            if field in data and data[field]:
+                try:
+                    request_data[field] = converter(data[field])
+                except (ValueError, TypeError):
+                    return jsonify({
+                        "success": False,
+                        "message": f"Format invalide pour le champ {field}"
+                    }), 400
+        
         try:
-            request_data["price"] = float(data["price"])
-        except (ValueError, TypeError):
-            return jsonify({
-                "success": False,
-                "message": "Le prix doit être un nombre valide"
-            }), 400
-        
-    try : 
-        req = create_request(**request_data)
-        
-        return jsonify({
-            "success": True,
-            "data": {
-                "id": req.id,
-                "type": req.type,
-                "status": req.status,
-                "description": req.description,
-                "user_id": req.user_id,
-                "car_id": req.car_id,
-                "start_date": req.start_date.isoformat() if req.start_date else None,
-                "end_date": req.end_date.isoformat() if req.end_date else None,
-                "price": req.price,
-                "created_at": req.created_at.isoformat() if req.created_at else None
-            }
-        }), 201
-    except :
-         return jsonify({
-            "success": False,
-            "message": "Une erreur s'est produite. Vérifiez si les utilisateurs ou le véhicule associé est correct."
-        }), 500
-@request_bp.put("/requests/<int:request_id>")
-def modify_request(request_id):
-    data = request.get_json()
-    if not data:
-        return jsonify({
-            "success": False,
-            "message": "Données invalides"
-        }), 400
-    
-    try:
-        start_date = datetime.fromisoformat(data["start_date"]) if "start_date" in data else None
-        end_date = datetime.fromisoformat(data["end_date"]) if "end_date" in data else None
-    except ValueError:
-        return jsonify({
-            "success": False,
-            "message": "Format de date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
-        }), 400
-    try:
-        req = update_request(
-            request_id,
-            type=data.get("type"),
-            description=data.get("description"),
-            status=data.get("status"),
-            start_date=start_date,
-            end_date=end_date,
-            price=float(data["price"]) if "price" in data else None
-        )
-        
-        if req:
+            req = create_request(**request_data)
             return jsonify({
                 "success": True,
                 "data": {
                     "id": req.id,
                     "type": req.type,
-                    "description": req.description,
                     "status": req.status,
+                    "description": req.description,
                     "user_id": req.user_id,
                     "car_id": req.car_id,
                     "start_date": req.start_date.isoformat() if req.start_date else None,
@@ -179,19 +118,87 @@ def modify_request(request_id):
                     "price": req.price,
                     "created_at": req.created_at.isoformat() if req.created_at else None
                 }
-            })
-        
-        return jsonify({
-            "success": False,
-            "message": "Requête non trouvée"
-        }), 404
+            }), 201
+        except:
+            return jsonify({
+                "success": False,
+                "message": "Une erreur s'est produite. Vérifiez si les utilisateurs ou le véhicule associé est correct."
+            }), 500
 
-    except :
+    except ValueError:
         return jsonify({
             "success": False,
-            "message": "Une erreur s'est produite. Vérifiez si les utilisateurs ou le véhicule associé est correct."
-        }), 500
-        
+            "message": "Format de date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
+        }), 400
+
+@request_bp.put("/requests/<int:request_id>")
+def modify_request(request_id):
+    data = request.get_json()
+    print(data)
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Données invalides"
+        }), 400
+    
+    try:
+        request_data = {}
+
+        # Seuls ces champs sont modifiables
+        optional_fields = {
+            "description": str,
+            "status": str,
+            "start_date": lambda x: datetime.fromisoformat(x),
+            "end_date": lambda x: datetime.fromisoformat(x),
+            "price": float
+        }
+
+        for field, converter in optional_fields.items():
+            if field in data and (data[field] is not None and data[field] != ''):
+                try:
+                    request_data[field] = converter(data[field])
+                except (ValueError, TypeError):
+                    return jsonify({
+                        "success": False,
+                        "message": f"Format invalide pour le champ {field}"
+                    }), 400
+
+        try:
+            req = update_request(request_id, **request_data)
+            
+            if req:
+                return jsonify({
+                    "success": True,
+                    "data": {
+                        "id": req.id,
+                        "type": req.type,
+                        "description": req.description,
+                        "status": req.status,
+                        "user_id": req.user_id,
+                        "car_id": req.car_id,
+                        "start_date": req.start_date.isoformat() if req.start_date else None,
+                        "end_date": req.end_date.isoformat() if req.end_date else None,
+                        "price": req.price,
+                        "created_at": req.created_at.isoformat() if req.created_at else None
+                    }
+                })
+            
+            return jsonify({
+                "success": False,
+                "message": "Requête non trouvée"
+            }), 404
+
+        except:
+            return jsonify({
+                "success": False,
+                "message": "Une erreur s'est produite. Vérifiez si les données sont correctes."
+            }), 500
+
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "message": "Format de date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
+        }), 400
 
 @request_bp.delete("/requests/<int:request_id>")
 def remove_request(request_id):
