@@ -40,7 +40,7 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (
               {appointment.date}
             </p>
             <p className="text-gray-600 capitalize">
-              Service: {appointment?.serviceName || "TODO"}
+              Service: {appointment?.service_name || "TODO"}
             </p>
           </div>
           {/* <span

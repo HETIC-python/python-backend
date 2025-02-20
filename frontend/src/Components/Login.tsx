@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { API_URL } from "../api";
 import { useNavigate } from "react-router";
+import { jwtDecode } from "jwt-decode";
+import { useUser } from "../context/user";
 
-function App() {
+function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const {updateUser, isAuthenticated} = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,10 +33,10 @@ function App() {
       const data = await response.json();
       // Stockage du token JWT dans localStorage
       localStorage.setItem("token", data.token);
+      const decoded = jwtDecode(data.token);
+      updateUser(decoded);
       setError("");
       navigate("/");
-      
-
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error(err);
@@ -46,7 +49,10 @@ function App() {
         <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-600">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-600"
+            >
               Email
             </label>
             <input
@@ -60,7 +66,10 @@ function App() {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-600">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-600"
+            >
               Password
             </label>
             <input
@@ -84,7 +93,10 @@ function App() {
             </button>
             <div className="mt-2 w-full py-2 font-semibold rounded-md transition flex items-center">
               <h2 className="px-4 py-2">Don't have an account?</h2>
-              <a href="/signUp" className="underline rounded-md hover:bg-gray-300">
+              <a
+                href="/signUp"
+                className="underline rounded-md hover:bg-gray-300"
+              >
                 Sign Up
               </a>
             </div>
@@ -95,4 +107,4 @@ function App() {
   );
 }
 
-export default App;
+export default Login;

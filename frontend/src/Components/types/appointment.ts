@@ -8,6 +8,7 @@ export interface Appointment {
   time: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   serviceType: ServiceType;
+  service_name?: string;
   notes?: string;
   car: {
     brand: string;

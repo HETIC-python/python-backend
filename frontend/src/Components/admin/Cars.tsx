@@ -43,14 +43,27 @@ const Cars: React.FC = () => {
 
   const fetchCars = async () => {
     try {
-      const response = await fetch(`${API_URL}/cars`);
+      const token = window.localStorage.getItem("token");
+      if (!token) {
+        return navigate("/login");
+      }
+      console.log("Token being sent:", token); // Debug token
+      const response = await fetch(`${API_URL}/cars`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Make sure the format is correct
+        },
+      });
+      console.log("Response status:", response.status); // Debug response
       const data: CarResponse = await response.json();
+      console.log("Response data:", data); // Debug response data
+
       if (Array.isArray(data)) {
-        console.log(data);
         setCars(data);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Fetch error:", err);
       setError("Error loading cars");
     } finally {
       setIsLoading(false);
@@ -135,7 +148,7 @@ const Cars: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Cars Management</h2>
         <button
-          onClick={() => navigate('/admin/cars/new')}
+          onClick={() => navigate("/admin/cars/new")}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           Add New Car
