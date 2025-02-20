@@ -1,9 +1,9 @@
 from flask import request, jsonify, make_response, Blueprint
 from service.s3_service import upload_file_to_s3
 from models import db  # Assurez-vous que votre module db est bien importé
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.car import Car  # Importation de votre classe Car
-
+from utils.admin import admin_checking
 
 cars_bp = Blueprint('cars', __name__)
 
@@ -42,28 +42,32 @@ def create_car():
 # Lire toutes les voitures (GET)
 @cars_bp.route('/cars', methods=['GET'])
 def get_all_cars():
-    cars = Car.query.all()
-    result = [
-        {
-            "id": car.id,
-            "name": car.name,
-            "year": car.year,
-            "model": car.model,
-            "brand": car.brand,
-            "km": car.km,
-            "type": car.type,
-            "code": car.code,
-            "availability": car.availability,
-            "description": car.description,
-            "price": car.price,
-        "picture": car.picture,
-        "engine": car.engine,
-        "transmission": car.transmission,
-        "horsepower": car.horsepower,
-        "topSpeed": car.topSpeed
-        } for car in cars
-    ]
-    return jsonify(result)
+    try:
+        cars = Car.query.all()
+        result = [
+            {
+                "id": car.id,
+                "name": car.name,
+                "year": car.year,
+                "model": car.model,
+                "brand": car.brand,
+                "km": car.km,
+                "type": car.type,
+                "code": car.code,
+                "availability": car.availability,
+                "description": car.description,
+                "price": car.price,
+                "picture": car.picture,
+                "engine": car.engine,
+                "transmission": car.transmission,
+                "horsepower": car.horsepower,
+                "topSpeed": car.topSpeed
+            } for car in cars
+        ]
+        return jsonify(result)
+    except Exception as e:
+        print("Cars error:", str(e))
+        return make_response(jsonify({"message": f"Error fetching cars: {str(e)}"}), 500)
 
 
 # Lire une voiture spécifique par ID (GET)

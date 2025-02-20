@@ -10,7 +10,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 
 from utils.admin import admin_checking
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from models import db
 from models.user import User
@@ -33,30 +33,53 @@ def register():
         return jsonify({'success' : False, 'message': 'Error occurred!'}), 500
 
 @user_bp.route('/login', methods=['POST'])
+@user_bp.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    user = User.query.filter_by(email=data['email']).first()
-    
-    if user and check_password_hash(user.password, data['password']):
-        username = f"{user.firstname}_{user.lastname}"
-        access_token = create_access_token(identity={'id': user.id, 'username': username, "role": user.role})
-        return jsonify({"success":True,'token': access_token}), 200
-    
-    return jsonify({"success":False,'message': 'Invalid credentials'}), 401
+    try:
+        data = request.get_json()
+        user = User.query.filter_by(email=data['email']).first()
+        
+        if user and check_password_hash(user.password, data['password']):
+            access_token = create_access_token(
+
+                identity=str(user.id),  # MUST be string
+                additional_claims={
+                    'is_admin': user.role == 'admin',
+                    'email': user.email,
+                    'role': user.role
+                },
+                expires_delta=timedelta(days=100)
+            )
+            return jsonify({
+                "success": True,
+                'token': access_token,
+                'is_admin': user.role == 'admin'
+            }), 200
+        
+        return jsonify({"success": False, 'message': 'Invalid credentials'}), 401
+    except Exception as e:
+        print("Login error:", str(e))
+        return jsonify({"success": False, 'message': 'Server error'}), 500
 
 @user_bp.route('/profile', methods=['GET'])
-@admin_checking
+# @admin_checking
 @jwt_required()
 def profile():
     current_user = get_jwt_identity()
-    user = User.query.get(current_user['id'])
+    user = User.query.get(str(current_user))
     
     return jsonify({
         'id': user.id,
-        'username': user.username,
-        'email': user.email
+        'firstname': user.firstname,
+        'lastname': user.lastname,
+        'role': user.role,
+        'birthdate': user.birthdate,
+        'city': user.city,
+        'adresse': user.adresse,
+        'zipcode': user.zipcode,
+        'job': user.job,
+        'income': user.income
     })
-
 @user_bp.route('/orders', methods=['GET'])
 @jwt_required()
 def orders():

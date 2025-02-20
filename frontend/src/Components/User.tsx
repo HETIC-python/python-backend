@@ -1,56 +1,70 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { API_URL } from "../api";
+import { useUser } from "../context/user";
 
 interface User {
   id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: {
-    street: string;
-    city: string;
-    country: string;
-    zipCode: string;
-  };
-  cars: {
-    id: number;
-    brand: string;
-    model: string;
-  }[];
-  joinDate: string;
-  profileImage: string;
+  firstname: string;
+  lastname: string;
+  role: string;
+  birthdate: string;
+  city: string;
+  adresse: string;
+  zipcode: string;
+  job: string;
+  income: number;
+  // password omitted for security
 }
 
 export default function User() {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { updateUser, isAuthenticated } = useUser();
   const [user, setUser] = useState<User | null>(null);
-
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const token = localStorage.getItem('token');
+  console.log(token);
   useEffect(() => {
-    // Mock data - replace with actual API fetch
-    const mockUser: User = {
-      id: Number(id),
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+1 (555) 123-4567",
-      address: {
-        street: "123 Main Street",
-        city: "New York",
-        country: "USA",
-        zipCode: "10001",
-      },
-      cars: [
-        { id: 1, brand: "Tesla", model: "Model S" },
-        { id: 2, brand: "BMW", model: "M3" },
-      ],
-      joinDate: "2024-01-15",
-      profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        console.log({token});
+        if (!token || !isAuthenticated) {
+          // navigate('/user/login', { replace: true });
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/profile`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        setUser(data);
+        updateUser(data);
+      } catch (err) {
+        console.error('Error fetching user:', err);
+        setError(err instanceof Error ? err.message : 'Error fetching user data');
+      } finally {
+        setIsLoading(false);
+      }
     };
+    
+    fetchUser();
+  }, [isAuthenticated]); // removed updateUser from dependencies
 
-    setUser(mockUser);
-  }, [id]);
-
-  if (!user) return <div>Loading...</div>;
+  if (isLoading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center p-4">{error}</div>;
+  if (!user) return <div className="text-center p-4">User not found</div>;
 
   return (
     <div className="container mx-auto p-6">
@@ -65,26 +79,32 @@ export default function User() {
         <div className="md:flex">
           <div className="md:w-1/3 p-8 bg-gray-50">
             <img
-              src={user.profileImage}
-              alt={user.name}
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.firstname}`}
+              alt={`${user?.firstname} ${user?.lastname}`}
               className="w-48 h-48 rounded-full mx-auto mb-6"
             />
-            <h1 className="text-2xl font-bold text-center mb-2">{user.name}</h1>
+            <h1 className="text-2xl font-bold text-center mb-2">
+              {user?.firstname} {user?.lastname}
+            </h1>
             <p className="text-gray-600 text-center mb-4">
-              Member since {new Date(user.joinDate).toLocaleDateString()}
+              Role: {user?.role}
             </p>
           </div>
 
           <div className="md:w-2/3 p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h2 className="text-xl font-bold mb-4">Contact Information</h2>
+                <h2 className="text-xl font-bold mb-4">Personal Information</h2>
                 <div className="space-y-2">
                   <p>
-                    <span className="font-semibold">Email:</span> {user.email}
+                    <span className="font-semibold">Birth Date:</span>{" "}
+                    {new Date(user?.birthdate || "").toLocaleDateString()}
                   </p>
                   <p>
-                    <span className="font-semibold">Phone:</span> {user.phone}
+                    <span className="font-semibold">Job:</span> {user?.job}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Income:</span> €{user?.income}
                   </p>
                 </div>
               </div>
@@ -92,25 +112,14 @@ export default function User() {
               <div>
                 <h2 className="text-xl font-bold mb-4">Address</h2>
                 <div className="space-y-2">
-                  <p>{user.address.street}</p>
+                  <p>{user?.adresse}</p>
                   <p>
-                    {user.address.city}, {user.address.zipCode}
+                    <span className="font-semibold">City:</span> {user?.city}
                   </p>
-                  <p>{user.address.country}</p>
+                  <p>
+                    <span className="font-semibold">Zip Code:</span> {user?.zipcode}
+                  </p>
                 </div>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="text-xl font-bold mb-4">Cars Owned</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {user.cars.map((car) => (
-                  <div key={car.id} className="bg-gray-50 p-4 rounded-lg">
-                    <p className="font-semibold">
-                      {car.brand} {car.model}
-                    </p>
-                  </div>
-                ))}
               </div>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { API_URL } from "../api";
 import { Car } from "./types/car";
+import { jwtDecode } from "jwt-decode";
 
 export default function BookCar() {
   const { id } = useParams();
@@ -37,14 +38,16 @@ export default function BookCar() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/requests`, {
+      const token = localStorage.getItem("token")
+      const decoded = jwtDecode(token || "");
+      const response = await fetch(`${API_URL}/carAppointments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           car_id: id,
-          user_id: 1, // TODO: Replace with actual user ID
+          user_id: decoded?.sub, // TODO: Replace with actual user ID
           ...formData,
           start_date: `${formData.date} ${formData.time}`,
         }),
