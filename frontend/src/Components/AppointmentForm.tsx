@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { API_URL } from "../api";
+import { jwtDecode } from "jwt-decode";
 
 // const services: { type?: ServiceType; label: string; description: string }[] = [
 //   {
@@ -69,17 +70,20 @@ export default function AppointmentForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token || "");
     setError(null);
     // Handle form submission
     const res = await fetch(`${API_URL}/appointments`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+      "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ...formData,
-        user_id: 1, // TODO: Replace with actual user ID
-        service_id: services.find((s) => s.name === formData.serviceName)?.id,
+      ...formData,
+      date: `${formData.date}T${formData.time}:00Z`,
+      user_id: decoded?.sub, // TODO: Replace with actual user ID
+      service_id: services.find((s) => s.name === formData.serviceName)?.id,
       }),
     });
     if (res.status === 400) {

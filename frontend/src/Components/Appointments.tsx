@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { Appointment } from "./types/appointment";
 import { API_URL } from "../api";
+import { jwtDecode } from "jwt-decode";
 
 const mockAppointments: Appointment[] = [
   {
@@ -72,8 +73,12 @@ export default function Appointments() {
   async function getAppointments() {
     try {
       setApiState("LOADING");
-      const res = await fetch(`${API_URL}/appointments/user/${USER_ID}`); // Replace USER_ID with actual user ID
+      const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token || "");
+      console.log(decoded);
+      const res = await fetch(`${API_URL}/appointments/user/${decoded?.sub}`); // Replace USER_ID with actual user ID
       const data = await res.json();
+      console.log(data);
       setAppointments(data);
       setApiState("SUCCESS");
       return data;

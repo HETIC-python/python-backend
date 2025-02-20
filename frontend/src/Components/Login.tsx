@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { API_URL } from "../api";
 import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
@@ -9,7 +9,13 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const {updateUser, isAuthenticated} = useUser();
+  const { updateUser, isAuthenticated } = useUser();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,19 +30,18 @@ function Login() {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         setError(data.message || "Invalid credentials");
         return;
       }
 
-      const data = await response.json();
       // Stockage du token JWT dans localStorage
       localStorage.setItem("token", data.token);
       const decoded = jwtDecode(data.token);
       updateUser(decoded);
       setError("");
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error(err);

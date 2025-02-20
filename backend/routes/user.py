@@ -10,7 +10,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 
 from utils.admin import admin_checking
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from models import db
 from models.user import User
@@ -41,12 +41,14 @@ def login():
         
         if user and check_password_hash(user.password, data['password']):
             access_token = create_access_token(
+
                 identity=str(user.id),  # MUST be string
                 additional_claims={
                     'is_admin': user.role == 'admin',
                     'email': user.email,
                     'role': user.role
-                }
+                },
+                expires_delta=timedelta(days=100)
             )
             return jsonify({
                 "success": True,
