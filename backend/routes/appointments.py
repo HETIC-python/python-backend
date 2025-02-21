@@ -38,7 +38,7 @@ def get_single_appointment(appointment_id):
             "date": appointment.date,
             "created_at": appointment.created_at
         })
-    return jsonify({"message": f"No appointment found with id : {appointment_id}"})
+    return jsonify({"message": f"No appointment found with id : {appointment_id}"}), 404
 
 @appointment_bp.post("/appointments")
 def add_appointment():
