@@ -38,9 +38,7 @@ const Requests: React.FC = () => {
             if (!token) {
                 throw new Error('No token found');
             }
-            const requestsUrl = userHasAdminRole 
-                ? `${API_URL}/requests`  
-                : `${API_URL}/requests?user_id=${user?.id}`; 
+            const requestsUrl =  `${API_URL}/requests`  
                 
             const response = await fetch(requestsUrl, {
                 headers: {

@@ -9,21 +9,26 @@ from controller.request import (
     update_request,
     delete_request
 )
+from models.user import User
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 request_bp = Blueprint('requests', __name__)
 
 @request_bp.get("/requests")
+@jwt_required()
 def list_requests():
-    user_id = request.args.get('user_id', type=int)
+    current_user = get_jwt_identity()
+    user = User.query.get(str(current_user))
+
     car_id = request.args.get('car_id', type=int)
     
-    if user_id:
-        requests = get_user_requests(user_id)
+    if user.role == "admin":
+        requests = get_all_requests()
     elif car_id:
         requests = get_car_requests(car_id)
     else:
-        requests = get_all_requests()
-        
+        requests = get_user_requests(user.id)
+
     return jsonify({
         "success": True,
         "data": [{

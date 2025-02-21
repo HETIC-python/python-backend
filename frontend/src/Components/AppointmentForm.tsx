@@ -144,6 +144,7 @@ export default function AppointmentForm() {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, date: e.target.value }))
               }
+              required
               className="w-full p-2 border rounded-md"
               min={new Date().toISOString().split("T")[0]}
             />

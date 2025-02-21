@@ -28,15 +28,17 @@ export default function Navbar() {
               <Link to="/" className="text-gray-600 hover:text-blue-600">
                 Cars
               </Link>
-              <Link to="/about" className="text-gray-600 hover:text-blue-600">
-                About
+              <Link to="/user/requests" className="text-gray-600 hover:text-blue-600">
+                Requests
               </Link>
               <Link to="/contact" className="text-gray-600 hover:text-blue-600">
                 Contact
               </Link>
+              {isAuthenticated && !isUserAdmin() && (
               <Link to="/appointments" className="text-gray-600 hover:text-blue-600">
                 Appointments
               </Link>
+              )}
               {isAuthenticated && isUserAdmin() && (
                 <div className="relative inline-block text-left">
                   <button
