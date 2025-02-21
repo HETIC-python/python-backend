@@ -81,7 +81,7 @@ export default function AppointmentForm() {
       },
       body: JSON.stringify({
       ...formData,
-      date: `${formData.date}T${formData.time}:00Z`,
+      date: `${formData.date} ${formData?.time}`,
       user_id: decoded?.sub, // TODO: Replace with actual user ID
       service_id: services.find((s) => s.name === formData.serviceName)?.id,
       }),

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, make_response, Blueprint
+from datetime import datetime
 from controller.appointment import create_appointment, get_appointment, get_appointments_by_user_id, get_all_appointments, update_appointment, delete_appointment
 
 appointment_bp = Blueprint('appointments', __name__)
