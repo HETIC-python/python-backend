@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, make_response, Blueprint
+from datetime import datetime
 from controller.appointment import create_appointment, get_appointment, get_appointments_by_user_id, get_all_appointments, update_appointment, delete_appointment
 
 appointment_bp = Blueprint('appointments', __name__)
@@ -38,7 +39,7 @@ def get_single_appointment(appointment_id):
             "date": appointment.date,
             "created_at": appointment.created_at
         })
-    return jsonify({"message": f"No appointment found with id : {appointment_id}"})
+    return jsonify({"message": f"No appointment found with id : {appointment_id}"}), 404
 
 @appointment_bp.post("/appointments")
 def add_appointment():
@@ -47,7 +48,12 @@ def add_appointment():
     if not data or "user_id" not in data or "service_id" not in data or "date" not in data:
         return jsonify({"message": "Champs manquant"}), 400
 
-    appointment = create_appointment(data["user_id"], data["service_id"], data["date"])
+    try:
+        datetime_obj = datetime.strptime(data["date"], "%Y-%m-%d %H:%M")
+    except ():
+        return jsonify({"message": "Invalid datetime format. Use YYYY-MM-DD HH:MM"}),400
+
+    appointment = create_appointment(data["user_id"], data["service_id"], datetime_obj.strftime("%Y-%m-%d %H:%M"))
     return jsonify({
         "id": appointment.id,
         "user_id": appointment.user_id,
@@ -62,7 +68,12 @@ def modify_appointment(appointment_id):
     if not data or "date" not in data:
         return jsonify({"message": "Invalid data"}), 400
 
-    appointment = update_appointment(appointment_id, data["date"])
+    try:
+        datetime_obj = datetime.strptime(data["date"], "%Y-%m-%d %H:%M")
+    except ():
+        return jsonify({"message": "Invalid datetime format. Use YYYY-MM-DD HH:MM"}),400
+
+    appointment = update_appointment(appointment_id, datetime_obj.strftime("%Y-%m-%d %H:%M"))
     if appointment:
         return jsonify({
             "id": appointment.id,

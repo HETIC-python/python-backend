@@ -22,7 +22,8 @@ def upload_file_to_s3(file, bucket_name=Config.AWS_BUCKET_NAME):
     #     raise ValueError("Seuls les fichiers PDF sont autorisés")
 
     s3_path = f"uploads/{filename}"  # Dossier "uploads/" dans S3
-    s3_client.upload_fileobj(file, bucket_name, s3_path, ExtraArgs={"ContentType": "application/pdf"})
+    content_type = file.content_type if hasattr(file, 'content_type') else 'application/octet-stream'
+    s3_client.upload_fileobj(file, bucket_name, s3_path, ExtraArgs={"ContentType": content_type})
 
     file_url = f"https://{bucket_name}.s3.{Config.AWS_REGION}.amazonaws.com/{s3_path}"
     return file_url

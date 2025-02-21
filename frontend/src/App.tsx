@@ -5,21 +5,20 @@ import Cars from "./Components/Cars";
 import Navbar from "./Components/Navbar";
 import User from "./Components/User";
 
-import { useEffect } from "react";
+import AdminAuthenticated from "./Components/admin/AdminAuthentictated";
+import AdminAppointments from "./Components/admin/Appointments";
+import CarForm from "./Components/admin/CarForm";
+import AdminCars from "./Components/admin/Cars";
 import AppointmentForm from "./Components/AppointmentForm";
 import Appointments from "./Components/Appointments";
 import Authenticated from "./Components/Authenticated";
 import BookCar from "./Components/BookCar";
 import Login from "./Components/Login";
+import Requests from "./Components/Requests";
 import Services from "./Components/Services";
 import Signup from "./Components/Signup";
-import CarForm from "./Components/admin/CarForm";
-import AdminCars from "./Components/admin/Cars";
-import AdminAppointments from "./Components/admin/Appointments";
-import Requests from "./Components/Requests";
 import { UserProvider } from "./context/user";
-import { isUserAdmin } from "./utils/user";
-import AdminAuthenticated from "./Components/admin/AdminAuthentictated";
+import AppointmentChange from "./Components/admin/AppointmentChange";
 
 function App() {
   //useEffect(() => {
@@ -65,48 +64,56 @@ function App() {
                   }
                 />
               </Route>
-                <Route path="/admin">
+              <Route path="/admin">
                 <Route
                   index
                   element={
-                  <AdminAuthenticated>
-                    <h1>ADMIN</h1>
-                  </AdminAuthenticated>
+                    <AdminAuthenticated>
+                      <h1>ADMIN</h1>
+                    </AdminAuthenticated>
                   }
                 />
                 <Route
                   path="cars"
                   element={
-                  <AdminAuthenticated>
-                    <AdminCars />
-                  </AdminAuthenticated>
+                    <AdminAuthenticated>
+                      <AdminCars />
+                    </AdminAuthenticated>
                   }
                 />
                 <Route
                   path="cars/:id"
                   element={
-                  <AdminAuthenticated>
-                    <CarForm />
-                  </AdminAuthenticated>
+                    <AdminAuthenticated>
+                      <CarForm />
+                    </AdminAuthenticated>
                   }
                 />
                 <Route
                   path="services"
                   element={
-                  <AdminAuthenticated>
-                    <Services />
-                  </AdminAuthenticated>
+                    <AdminAuthenticated>
+                      <Services />
+                    </AdminAuthenticated>
                   }
                 />
                 <Route
                   path="appointments"
                   element={
-                  <AdminAuthenticated>
-                    <AdminAppointments />
-                  </AdminAuthenticated>
+                    <AdminAuthenticated>
+                      <AdminAppointments />
+                    </AdminAuthenticated>
                   }
                 />
-                </Route>
+                <Route
+                  path="appointments/:id"
+                  element={
+                    <AdminAuthenticated>
+                      <AppointmentChange />
+                    </AdminAuthenticated>
+                  }
+                />
+              </Route>
 
               <Route path="/user">
                 <Route path="login" element={<Login />} />
