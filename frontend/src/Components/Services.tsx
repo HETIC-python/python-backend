@@ -22,7 +22,17 @@ const Services: React.FC = () => {
 
     const fetchServices = async () => {
         try {
-            const response = await fetch(`${API_URL}/services`);
+            const token = localStorage.getItem('token');
+            if (!token || !isAuthenticated) {
+               navigate('/user/login', { replace: true });
+              return;
+            }
+            const response = await fetch(`${API_URL}/services`,{
+                method: "GET",
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
             const data: ServiceResponse = await response.json();
             if (data.success && Array.isArray(data.data)) {
                 setServices(data.data);
@@ -80,10 +90,16 @@ const Services: React.FC = () => {
         try {
             const url = editingService ? `${API_URL}/services/${editingService.id}` : `${API_URL}/services`;
             const method = editingService ? 'PUT' : 'POST';
-            
+            const token = localStorage.getItem('token');
+            if (!token || !isAuthenticated) {
+               navigate('/user/login', { replace: true });
+              return;
+            }
+
             const response = await fetch(url, {
                 method,
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(formData),
@@ -105,8 +121,16 @@ const Services: React.FC = () => {
     const handleDelete = async (id: number) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce service ?')) {
             try {
+                const token = localStorage.getItem('token');
+                if (!token || !isAuthenticated) {
+                navigate('/user/login', { replace: true });
+                return;
+                }
                 const response = await fetch(`${API_URL}/services/${id}`, {
-                    method: 'DELETE',
+                    method:"DELETE",
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
                 });
                 const data: ServiceResponse = await response.json();
                 if (data.success) {

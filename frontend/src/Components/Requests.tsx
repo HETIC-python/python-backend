@@ -150,6 +150,12 @@ const Requests: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const token = localStorage.getItem('token');
+            if (!token || !isAuthenticated) {
+               navigate('/user/login', { replace: true });
+              return;
+            }
+
             const url = editingRequest 
                 ? `${API_URL}/requests/${editingRequest.id}`
                 : `${API_URL}/requests`;
@@ -163,6 +169,7 @@ const Requests: React.FC = () => {
             const response = await fetch(url, {
                 method,
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestData),
@@ -185,8 +192,16 @@ const Requests: React.FC = () => {
     const handleDelete = async (id: number) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette requête ?')) {
             try {
+                const token = localStorage.getItem('token');
+                if (!token || !isAuthenticated) {
+                navigate('/user/login', { replace: true });
+                return;
+                }
+
                 const response = await fetch(`${API_URL}/requests/${id}`, {
-                    method: 'DELETE',
+                    method: 'DELETE',headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
                 const data: RequestResponse = await response.json();
                 if (data.success) {

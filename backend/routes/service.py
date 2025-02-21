@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify, make_response, Blueprint
 from controller.service import create_service, get_service, get_all_services, update_service, delete_service
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from utils.admin import admin_checking
 
 service_bp = Blueprint('services', __name__)
 
 @service_bp.get("/services")
+@jwt_required()
 def list_services():
     services = get_all_services()
     return jsonify({
@@ -16,6 +19,7 @@ def list_services():
     })
 
 @service_bp.get("/services/<int:service_id>")
+@jwt_required()
 def get_single_service(service_id):
     service = get_service(service_id)
     if service:
@@ -33,6 +37,8 @@ def get_single_service(service_id):
     }), 404
 
 @service_bp.post("/services")
+@jwt_required()
+@admin_checking
 def add_service():
     data = request.get_json()
     if not data or "name" not in data or "description" not in data:
@@ -52,6 +58,8 @@ def add_service():
     }), 201
 
 @service_bp.put("/services/<int:service_id>")
+@jwt_required()
+@admin_checking
 def modify_service(service_id):
     data = request.get_json()
     if not data:
@@ -81,6 +89,8 @@ def modify_service(service_id):
     }), 404
 
 @service_bp.delete("/services/<int:service_id>")
+@jwt_required()
+@admin_checking
 def remove_service(service_id):
     if delete_service(service_id):
         return jsonify({
