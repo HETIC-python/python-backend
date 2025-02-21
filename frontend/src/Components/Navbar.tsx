@@ -1,9 +1,12 @@
 import { Link, useNavigate } from 'react-router';
 import { useUser } from '../context/user';
+import { useState } from 'react';
+import { isUserAdmin } from '../utils/user';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useUser();
+  const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
 
   const handleSignOut = () => {
     logout();
@@ -34,6 +37,47 @@ export default function Navbar() {
               <Link to="/appointments" className="text-gray-600 hover:text-blue-600">
                 Appointments
               </Link>
+              {isAuthenticated && isUserAdmin() && (
+                <div className="relative inline-block text-left">
+                  <button
+                    onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
+                    className="text-gray-600 hover:text-blue-600"
+                  >
+                    Admin
+                  </button>
+                  
+                  {isAdminDropdownOpen && (
+                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div className="py-1">
+                        <Link
+                          to="/admin/cars"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Manage Cars
+                        </Link>
+                        <Link
+                          to="/admin/services"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Manage Services
+                        </Link>
+                        <Link
+                          to="/admin/appointments"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Appointments
+                        </Link>
+                        <Link
+                          to="/admin"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Dashboard
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           

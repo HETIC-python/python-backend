@@ -4,24 +4,6 @@ import { Appointment } from "./types/appointment";
 import { API_URL } from "../api";
 import { jwtDecode } from "jwt-decode";
 
-const mockAppointments: Appointment[] = [
-  {
-    id: 1,
-    userId: 1,
-    carId: 1,
-    date: "2024-02-20",
-    time: "14:00",
-    status: "confirmed",
-    serviceType: "test_drive",
-    car: {
-      brand: "Tesla",
-      model: "Model S",
-      imageUrl: "https://images.unsplash.com/photo-1617788138017-80ad40712e9c",
-    },
-  },
-  // Add more mock appointments...
-];
-
 const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (
   <div className="bg-white rounded-lg shadow-md p-6 mb-4">
     <div className="flex items-center gap-4">
@@ -37,8 +19,14 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (
               {appointment?.car?.brand} {appointment?.car?.model}
             </h3>
             <p className="text-gray-600">
-              {new Date(appointment.date).toLocaleDateString()} at{" "}
-              {appointment.date}
+              {new Date(appointment.date).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </p>
             <p className="text-gray-600 capitalize">
               Service: {appointment?.service_name || "TODO"}
@@ -65,33 +53,46 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (
 );
 
 export default function Appointments() {
-  const USER_ID = 1; // Replace with actual user ID
   const [apiState, setApiState] = useState<
     "IDLE" | "LOADING" | "SUCCESS" | "ERROR"
   >("IDLE");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  async function getAppointments() {
+  const [carAppointments, setCarAppointments] = useState<
+    (Appointment & { car_id: number })[]
+  >([]);
+
+  async function fetchAllAppointments() {
     try {
       setApiState("LOADING");
       const token = localStorage.getItem("token");
       const decoded = jwtDecode(token || "");
-      console.log(decoded);
-      const res = await fetch(`${API_URL}/appointments/user/${decoded?.sub}`); // Replace USER_ID with actual user ID
-      const data = await res.json();
-      console.log(data);
-      setAppointments(data);
+
+      // Fetch both regular and car appointments
+      const [appointmentsRes, carAppointmentsRes] = await Promise.allSettled([
+        fetch(`${API_URL}/appointments/user/${decoded?.sub}`),
+        fetch(`${API_URL}/carAppointments/user/${decoded?.sub}`),
+      ]);
+
+      const appointmentsData =
+        appointmentsRes.status === "fulfilled"
+          ? await appointmentsRes.value.json()
+          : [];
+      const carAppointmentsData =
+        carAppointmentsRes.status === "fulfilled"
+          ? await carAppointmentsRes.value.json()
+          : [];
+
+      setAppointments(appointmentsData);
+      setCarAppointments(carAppointmentsData);
       setApiState("SUCCESS");
-      return data;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       console.error("Error fetching appointments", error);
+      setApiState("ERROR");
     }
   }
 
   useEffect(() => {
-    // Replace with actual API call
-    // setAppointments(mockAppointments);
-    getAppointments();
+    fetchAllAppointments();
   }, []);
 
   if (apiState === "LOADING") return <div>Loading...</div>;
@@ -107,12 +108,22 @@ export default function Appointments() {
           Book New Appointment
         </Link>
       </div>
-      {appointments?.length === 0 ? (
-        <div>You do not have any appointment</div>
+      {appointments.length === 0 && carAppointments.length === 0 ? (
+        <div>You do not have any appointments</div>
       ) : (
         <div className="space-y-4">
           {appointments.map((appointment) => (
             <AppointmentCard key={appointment.id} appointment={appointment} />
+          ))}
+          {carAppointments.map((carAppointment) => (
+            <AppointmentCard
+              key={`car-${carAppointment.id}`}
+              appointment={{
+                ...carAppointment,
+                service_name: "Car Service",
+                type: "car",
+              }}
+            />
           ))}
         </div>
       )}

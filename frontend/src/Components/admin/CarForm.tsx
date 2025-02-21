@@ -102,8 +102,9 @@ function CarForm() {
       });
 
       const data = await response.json();
-      if (data?.messages?.includes("updated")) {
-        await handleSubmitUpload(e);
+      if (data?.message?.includes("created")) {
+        console.log("Car updated");
+        await handleSubmitUpload(e, data?.car_id);
       }
       if (id != "new" && data.message?.includes("updated")) {
         navigate("/admin/cars");
@@ -117,7 +118,7 @@ function CarForm() {
     }
   };
 
-  const handleSubmitUpload = async (e: React.FormEvent) => {
+  const handleSubmitUpload = async (e: React.FormEvent, carID: number) => {
     e.preventDefault();
     if (!file) {
       setError("Please select a file first");
@@ -128,7 +129,7 @@ function CarForm() {
       const formDataObj = new FormData();
       formDataObj.append("file", file);
 
-      const url = `${API_URL}/cars/upload/${1}`;
+      const url = `${API_URL}/cars/upload/${carID}`;
       const response = await fetch(url, {
         method: "POST",
         // Remove the Content-Type header to let the browser set it with the boundary

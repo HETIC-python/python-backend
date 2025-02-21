@@ -161,13 +161,23 @@ def upload_file(car_id):
         
         # Update the car's picture URL in the database
         car = Car.query.get(car_id)
-        if car:
+        if not car:
+            return jsonify({"error": f"Car with id {car_id} not found"}), 404
+            
+        try:
             car.picture = file_url
+            db.session.add(car)
             db.session.commit()
-        
-        return jsonify({
-            "message": "File uploaded successfully",
-            "url": file_url
-        }), 200
+            print(f"Picture URL saved successfully: {file_url}")
+            return jsonify({
+                "message": "Picture URL saved successfully",
+                "url": file_url,
+                "car_id": car.id
+            }), 200
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error saving picture URL: {str(e)}")
+            return jsonify({"error": f"Failed to save picture URL: {str(e)}"}), 500
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500

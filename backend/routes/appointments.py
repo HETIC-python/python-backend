@@ -43,6 +43,7 @@ def get_single_appointment(appointment_id):
 @appointment_bp.post("/appointments")
 def add_appointment():
     data = request.get_json()
+    print("data:::::", data)
     if not data or "user_id" not in data or "service_id" not in data or "date" not in data:
         return jsonify({"message": "Champs manquant"}), 400
 
