@@ -129,8 +129,6 @@ const Services: React.FC = () => {
 
     if (isLoading) return <div>Chargement...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
-
-    if (userHasAdminRole) {
         
     return (
         <div className="container mx-auto p-4">
@@ -186,14 +184,6 @@ const Services: React.FC = () => {
             </div>
         </div>
     );
-    } else {
-        setError("Vous n'avez pas l'acces à cette page")
-        return (
-            <div>
-            {error}
-            </div>
-        )
-    }
 };
 
 export default Services; 
