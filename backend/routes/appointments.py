@@ -47,7 +47,12 @@ def add_appointment():
     if not data or "user_id" not in data or "service_id" not in data or "date" not in data:
         return jsonify({"message": "Champs manquant"}), 400
 
-    appointment = create_appointment(data["user_id"], data["service_id"], data["date"])
+    try:
+        datetime_obj = datetime.strptime(data["date"], "%Y-%m-%d %H:%M")
+    except ():
+        return jsonify({"message": "Invalid datetime format. Use YYYY-MM-DD HH:MM"}),400
+
+    appointment = create_appointment(data["user_id"], data["service_id"], datetime_obj.strftime("%Y-%m-%d %H:%M"))
     return jsonify({
         "id": appointment.id,
         "user_id": appointment.user_id,
@@ -62,7 +67,12 @@ def modify_appointment(appointment_id):
     if not data or "date" not in data:
         return jsonify({"message": "Invalid data"}), 400
 
-    appointment = update_appointment(appointment_id, data["date"])
+    try:
+        datetime_obj = datetime.strptime(data["date"], "%Y-%m-%d %H:%M")
+    except ():
+        return jsonify({"message": "Invalid datetime format. Use YYYY-MM-DD HH:MM"}),400
+
+    appointment = update_appointment(appointment_id, datetime_obj.strftime("%Y-%m-%d %H:%M"))
     if appointment:
         return jsonify({
             "id": appointment.id,
