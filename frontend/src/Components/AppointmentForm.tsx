@@ -27,6 +27,8 @@ import { jwtDecode } from "jwt-decode";
 // ];
 
 async function bookAppointment(formData: object) {
+  const navigate = useNavigate()
+
   const resp = await fetch(`${API_URL}/book-appointment`, {
     method: "POST",
     headers: {
@@ -40,9 +42,18 @@ async function bookAppointment(formData: object) {
 }
 
 async function getServices() {
-  const resp = await fetch(`${API_URL}/services`);
-  const data = await resp.json();
-  return data;
+  const token = localStorage.getItem('token');
+  if (token) {
+    const resp = await fetch(`${API_URL}/services`,{
+      method:"GET",
+      headers: {
+          'Authorization': `Bearer ${token}`,
+      }
+  });
+    const data = await resp.json();
+    return data;
+  }
+  
 }
 
 function useServices() {
