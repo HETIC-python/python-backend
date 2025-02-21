@@ -46,30 +46,35 @@ def list_requests():
     })
 
 @request_bp.get("/requests/<int:request_id>")
+@jwt_required()
 def get_single_request(request_id):
     req = get_request(request_id)
     if req:
-        return jsonify({
-            "success": True,
-            "data": {
-                "id": req.id,
-                "type": req.type,
-                "description": req.description,
-                "status": req.status,
-                "user_id": req.user_id,
-                "car_id": req.car_id,
-                "start_date": req.start_date.isoformat() if req.start_date else None,
-                "end_date": req.end_date.isoformat() if req.end_date else None,
-                "price": req.price,
-                "created_at": req.created_at.isoformat() if req.created_at else None
-            }
-        })
+        current_user = get_jwt_identity()
+        user = User.query.get(str(current_user))
+        if user.role == "admin" or user.id == req.user_id:
+            return jsonify({
+                "success": True,
+                "data": {
+                    "id": req.id,
+                    "type": req.type,
+                    "description": req.description,
+                    "status": req.status,
+                    "user_id": req.user_id,
+                    "car_id": req.car_id,
+                    "start_date": req.start_date.isoformat() if req.start_date else None,
+                    "end_date": req.end_date.isoformat() if req.end_date else None,
+                    "price": req.price,
+                    "created_at": req.created_at.isoformat() if req.created_at else None
+                }
+            })
     return jsonify({
         "success": False,
         "message": "Requête non trouvée"
     }), 404
 
 @request_bp.post("/requests")
+@jwt_required()
 def add_request():
     data = request.get_json()
     required_fields = ["type", "user_id", "car_id", "start_date"]
@@ -137,82 +142,94 @@ def add_request():
         }), 400
 
 @request_bp.put("/requests/<int:request_id>")
+@jwt_required()
 def modify_request(request_id):
+    req_init_info = get_request(request_id)
     data = request.get_json()
-    print(data)
     if not data:
         return jsonify({
             "success": False,
             "message": "Données invalides"
         }), 400
-    
-    try:
-        request_data = {}
-
-        # Seuls ces champs sont modifiables
-        optional_fields = {
-            "description": str,
-            "status": str,
-            "start_date": lambda x: datetime.fromisoformat(x),
-            "end_date": lambda x: datetime.fromisoformat(x),
-            "price": float
-        }
-
-        for field, converter in optional_fields.items():
-            if field in data and (data[field] is not None and data[field] != ''):
-                try:
-                    request_data[field] = converter(data[field])
-                except (ValueError, TypeError):
-                    return jsonify({
-                        "success": False,
-                        "message": f"Format invalide pour le champ {field}"
-                    }), 400
-
+    current_user = get_jwt_identity()
+    user = User.query.get(str(current_user))
+    if user.role == "admin" or user.id == req_init_info.user_id:
         try:
-            req = update_request(request_id, **request_data)
-            
-            if req:
+            request_data = {}
+
+            # Seuls ces champs sont modifiables
+            optional_fields = {
+                "description": str,
+                "status": str,
+                "start_date": lambda x: datetime.fromisoformat(x),
+                "end_date": lambda x: datetime.fromisoformat(x),
+                "price": float
+            }
+
+            for field, converter in optional_fields.items():
+                if field in data and (data[field] is not None and data[field] != ''):
+                    try:
+                        request_data[field] = converter(data[field])
+                    except (ValueError, TypeError):
+                        return jsonify({
+                            "success": False,
+                            "message": f"Format invalide pour le champ {field}"
+                        }), 400
+
+            try:
+                req = update_request(request_id, **request_data)
+                
+                if req:
+                    return jsonify({
+                        "success": True,
+                        "data": {
+                            "id": req.id,
+                            "type": req.type,
+                            "description": req.description,
+                            "status": req.status,
+                            "user_id": req.user_id,
+                            "car_id": req.car_id,
+                            "start_date": req.start_date.isoformat() if req.start_date else None,
+                            "end_date": req.end_date.isoformat() if req.end_date else None,
+                            "price": req.price,
+                            "created_at": req.created_at.isoformat() if req.created_at else None
+                        }
+                    })
+                
                 return jsonify({
-                    "success": True,
-                    "data": {
-                        "id": req.id,
-                        "type": req.type,
-                        "description": req.description,
-                        "status": req.status,
-                        "user_id": req.user_id,
-                        "car_id": req.car_id,
-                        "start_date": req.start_date.isoformat() if req.start_date else None,
-                        "end_date": req.end_date.isoformat() if req.end_date else None,
-                        "price": req.price,
-                        "created_at": req.created_at.isoformat() if req.created_at else None
-                    }
-                })
-            
+                    "success": False,
+                    "message": "Requête non trouvée"
+                }), 404
+
+            except:
+                return jsonify({
+                    "success": False,
+                    "message": "Une erreur s'est produite. Vérifiez si les données sont correctes."
+                }), 500
+
+        except ValueError:
             return jsonify({
                 "success": False,
-                "message": "Requête non trouvée"
-            }), 404
-
-        except:
-            return jsonify({
-                "success": False,
-                "message": "Une erreur s'est produite. Vérifiez si les données sont correctes."
-            }), 500
-
-    except ValueError:
-        return jsonify({
-            "success": False,
-            "message": "Format de date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
-        }), 400
+                "message": "Format de date invalide. Utilisez le format ISO (YYYY-MM-DDTHH:MM:SS)"
+            }), 400
 
 @request_bp.delete("/requests/<int:request_id>")
+@jwt_required()
 def remove_request(request_id):
-    if delete_request(request_id):
+    current_user = get_jwt_identity()
+    user = User.query.get(str(current_user))
+    req = get_request(request_id)
+    if user.role == "admin" or user.id == req.user_id:
+        if delete_request(request_id):
+            return jsonify({
+                "success": True,
+                "message": "Requête supprimée"
+            })
         return jsonify({
-            "success": True,
-            "message": "Requête supprimée"
-        })
+            "success": False,
+            "message": "Requête non trouvée"
+        }), 404
     return jsonify({
         "success": False,
-        "message": "Requête non trouvée"
-    }), 404
+        "message": "Not Authorised"
+    }), 401
