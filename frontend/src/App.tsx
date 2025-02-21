@@ -16,14 +16,15 @@ import Signup from "./Components/Signup";
 import CarForm from "./Components/admin/CarForm";
 import AdminCars from "./Components/admin/Cars";
 import AdminAppointments from "./Components/admin/Appointments";
+import Requests from "./Components/Requests";
 import { UserProvider } from "./context/user";
 import { isUserAdmin } from "./utils/user";
 import AdminAuthenticated from "./Components/admin/AdminAuthentictated";
 
 function App() {
-  useEffect(() => {
-    isUserAdmin();
-  }, []);
+  //useEffect(() => {
+  //  isUserAdmin();
+  // }, []);
   return (
     <>
       <UserProvider>
@@ -118,6 +119,7 @@ function App() {
                     </Authenticated>
                   }
                 />
+                <Route path="requests" element={<Requests />} />
               </Route>
             </Routes>
           </main>
