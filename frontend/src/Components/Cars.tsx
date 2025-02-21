@@ -127,6 +127,7 @@ const initialFilters = {
 };
 
 async function fetchCars() {
+  console.log("fetching cars", `${API_URL}/cars`);
   const response = await fetch(`${API_URL}/cars`);
   return response.json();
 }
@@ -138,6 +139,7 @@ export default function Cars() {
 
   useEffect(() => {
     fetchCars().then((data) => {
+      console.log("data", data);
       setCars(data);
       setFilteredCars(data);
     });

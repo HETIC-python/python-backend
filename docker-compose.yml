@@ -7,6 +7,9 @@ services:
       - "127.0.0.1:5000:5000"
     volumes:
       - ./backend:/app
+
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
 
@@ -21,6 +24,6 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=production
-      - VITE_BASE_URL=http//127.0.0.1:5000/api
+      - VITE_BASE_URL=http://127.0.0.1:5000/api
     depends_on:
       - back
