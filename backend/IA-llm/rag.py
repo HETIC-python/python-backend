@@ -15,7 +15,7 @@ TEMPERATURE = 2
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Ollama Chat")
-parser.add_argument("--model", default="llama3", help="Ollama model to use (default: llama3)")
+parser.add_argument("--model", default="llama3.2", help="Ollama model to use (default: llama3)")
 args = parser.parse_args()
 
 # Function to open a file and return its contents as a string
