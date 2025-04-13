@@ -1,12 +1,29 @@
 import { Link, useNavigate } from 'react-router';
 import { useUser } from '../context/user';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { isUserAdmin } from '../utils/user';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useUser();
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
+  const adminRef = useRef<HTMLDivElement>(null);
+  // const handleClickOutside = (event: MouseEvent) => {
+  //   if (adminRef.current && !adminRef.current.contains(event.target as Node)) {
+  //     setIsAdminDropdownOpen(false);
+  //   }
+  // };
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      if (adminRef.current && !adminRef.current.contains(event.target as Node)) {
+        setIsAdminDropdownOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
 
   const handleSignOut = () => {
     logout();
@@ -25,9 +42,9 @@ export default function Navbar() {
               <Link to="/" className="text-gray-600 hover:text-blue-600">
                 Home
               </Link>
-              <Link to="/" className="text-gray-600 hover:text-blue-600">
+              {/* <Link to="/" className="text-gray-600 hover:text-blue-600">
                 Cars
-              </Link>
+              </Link> */}
               <Link to="/user/requests" className="text-gray-600 hover:text-blue-600">
                 Requests
               </Link>
@@ -40,7 +57,7 @@ export default function Navbar() {
               </Link>
               )}
               {isAuthenticated && isUserAdmin() && (
-                <div className="relative inline-block text-left">
+                <div className="relative inline-block text-left" ref={adminRef}>
                   <button
                     onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
                     className="text-gray-600 hover:text-blue-600"

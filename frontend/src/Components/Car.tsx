@@ -10,6 +10,7 @@ interface Car {
   year: number;
   price: number;
   imageUrl: string;
+  picture?: string;
 }
 
 interface CarDetails extends Car {
@@ -62,7 +63,7 @@ export default function Car() {
 
       <div className="bg-white rounded-lg shadow-xl overflow-hidden">
         <img
-          src={car?.imageUrl}
+          src={car?.picture || car?.imageUrl}
           alt={`${car?.brand} ${car?.name}`}
           className="w-full h-96 object-cover"
         />

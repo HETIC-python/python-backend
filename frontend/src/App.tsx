@@ -19,6 +19,7 @@ import Services from "./Components/Services";
 import Signup from "./Components/Signup";
 import { UserProvider } from "./context/user";
 import AppointmentChange from "./Components/admin/AppointmentChange";
+import Contact from "./Components/Contact";
 
 function App() {
   //useEffect(() => {
@@ -34,6 +35,7 @@ function App() {
               <Route path="/">
                 <Route index element={<Cars />} />
                 <Route path="car/:id" element={<Car />} />
+                <Route path="contact" element={<Contact />} />
                 <Route
                   path="car/:id/book"
                   element={

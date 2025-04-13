@@ -139,7 +139,6 @@ export default function Cars() {
 
   useEffect(() => {
     fetchCars().then((data) => {
-      console.log("data", data);
       setCars(data);
       setFilteredCars(data);
     });
