@@ -1,7 +1,11 @@
+import CarPng from '../assets/car.png';
 export default function Contact() {
     return (
         <div className="flex flex-col items-center p-8 max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6 text-blue-600">M-Motors</h1>
+            <div className="flex items-center gap-4 mb-6">
+                <img src={CarPng} alt="CarMarket Logo" className="w-12 h-12" />
+                <h1 className="text-3xl font-bold text-blue-600">CarMarket</h1>
+            </div>
             
             <div className="w-full space-y-4">
                 <div className="border p-4 rounded-lg shadow-sm bg-white hover:bg-gray-50 transition-colors">
