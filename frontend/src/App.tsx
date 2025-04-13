@@ -19,6 +19,7 @@ import Services from "./Components/Services";
 import Signup from "./Components/Signup";
 import { UserProvider } from "./context/user";
 import AppointmentChange from "./Components/admin/AppointmentChange";
+import Chat from './Components/Chat';
 
 function App() {
   //useEffect(() => {
@@ -130,6 +131,7 @@ function App() {
               </Route>
             </Routes>
           </main>
+          <Chat />
         </div>
       </UserProvider>
     </>

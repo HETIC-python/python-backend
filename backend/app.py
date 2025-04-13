@@ -6,6 +6,8 @@ from routes.cars import cars_bp
 from routes.service import service_bp
 from routes.request  import request_bp
 from routes.user import user_bp
+from routes.upload import upload_bp
+from routes.rag import rag_bp
 from models.user import User
 from models.car import Car
 from models.carAppointment import CarAppointment
@@ -49,6 +51,9 @@ app.register_blueprint(request_bp, url_prefix="/api")
 app.register_blueprint(appointment_bp, url_prefix="/api")
 app.register_blueprint(car_appointment_bp, url_prefix="/api")
 app.register_blueprint(user_bp, url_prefix="/api")
+app.register_blueprint(upload_bp,url_prefix="/api")
+app.register_blueprint(rag_bp,url_prefix="/api")
+
 
 if __name__ == "__main__":
     # app.run(debug=True)
