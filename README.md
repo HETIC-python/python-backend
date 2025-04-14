@@ -37,11 +37,20 @@ cp ../.env.example .env
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-flask run 
+flask run
 ```
 
 ```sh
 cd frontend
 npm install
 npm run dev
+```
+
+## PROJECT LLM
+
+### Project LLM is inside the backend folder
+
+```sh
+    # its a flask server
+    python -m rag2
 ```

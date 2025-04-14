@@ -10,7 +10,7 @@ from service.s3_service import list_files_in_s3,get_txt_file_from_s3
 rag_bp = Blueprint('rag', __name__)
 
 # Configuration de l'API Ollama
-ollama_model = "llama3"
+ollama_model = "llama3.2"
 client = OpenAI(
     base_url='http://localhost:11434/v1',
     api_key=ollama_model
