@@ -41,8 +41,16 @@ def get_relevant_context(prompt, vault_embeddings, vault_content, top_k=3):
 def rag_chat():
     data = request.json
     question = data.get("question", "")
+    msg = data.get("messages", [])
+    
+
     if not question:
-        return jsonify({"error": "Question is required"}), 400
+        for msg in messages:
+            if msg["role"] == "user":
+                question = msg["content"]
+                break
+        if not question :
+            return jsonify({"error": "Question is required"}), 400
 
     # Charger documents depuis S3
     vault_content = load_vault_from_s3()
@@ -70,8 +78,10 @@ def rag_chat():
         messages=messages,
         temperature=0.8
     )
-    print(response)
     answer = response.choices[0].message.content
     if len(answer)==0 :
         answer = "Désolé, nous n'avons pas compris votre demande"
-    return jsonify({"answer": answer, "context_used": relevant_context})
+    if len(msg)==0 :
+        return jsonify({"answer": answer, "context_used": relevant_context})
+    else :
+        return response;
